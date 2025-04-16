@@ -1,0 +1,6 @@
+django/.idea
+django/db.sqlite3
+django/venv
+django/backend/__pycache__
+
+frontend/.vscode
