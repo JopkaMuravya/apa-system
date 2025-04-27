@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'backend',
 ]
 
 MIDDLEWARE = [
@@ -122,3 +123,5 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ]
 }
+
+AUTH_USER_MODEL = 'backend.User'
