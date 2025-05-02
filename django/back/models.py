@@ -42,3 +42,96 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.email} ({self.role})"
 
+
+class Group(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Subject(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class StudentGroup(models.Model):
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='student_groups'
+    )
+
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='group_students'
+    )
+
+    class Meta:
+        unique_together = ('student', 'group')
+
+    def __str__(self):
+        return f"{self.student} в {self.group}"
+
+
+class GroupSubject(models.Model):
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='group_subjects'
+    )
+
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name='subject_groups'
+    )
+
+    class Meta:
+        unique_together = ('group', 'subject')
+
+    def __str__(self):
+        return f"{self.group} изучает {self.subject}"
+
+
+class TeacherSubject(models.Model):
+    teacher = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='teacher_subjects'
+    )
+
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name='subject_teachers'
+    )
+
+    class Meta:
+        unique_together = ('teacher', 'subject')
+
+    def __str__(self):
+        return f"{self.teacher} преподает {self.subject}"
+
+
+class Lesson(models.Model):
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name='lessons'
+    )
+
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='lessons'
+    )
+
+    lesson_date = models.DateField()
+    lesson_number = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.subject} для {self.group} ({self.lesson_date})"
