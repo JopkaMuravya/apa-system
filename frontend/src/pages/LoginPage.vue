@@ -31,7 +31,11 @@
           localStorage.setItem('token', response.data.token)
           localStorage.setItem('user', JSON.stringify(response.data.user))
   
-          router.push('/')
+          if (response.data.user.is_superuser) {
+            window.location.href = 'http://localhost:8000/admin'
+          } else {
+            router.push('/')
+          }
         } catch (error) {
           alert('Ошибка входа: ' + (error.response?.data?.detail || error.message))
         }
