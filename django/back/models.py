@@ -19,6 +19,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('role', 'admin')
 
         return self.create_user(email, password, **extra_fields)
 
@@ -31,6 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(
         max_length=20,
         choices=[
+            ('admin', 'Админ'),
             ('moderator', 'Модератор'),
             ('teacher', 'Преподаватель'),
             ('student', 'Студент'),

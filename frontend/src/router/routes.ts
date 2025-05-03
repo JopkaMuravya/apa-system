@@ -1,9 +1,5 @@
 const routes = [
   {
-    path: '/',
-    redirect: '/login'
-  },
-  {
     path: '/login',
     name: 'login',
     component: () => import('pages/LoginPage.vue'),
@@ -14,6 +10,37 @@ const routes = [
     name: 'register',
     component: () => import('pages/RegisterPage.vue'),
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/',
+    component: () => import('layouts/AppLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        redirect: '/login'
+      },
+      {
+        path: 'student',
+        name: 'student-home',
+        component: () => import('pages/StudentHomePage.vue')
+      },
+      {
+        path: 'teacher',
+        name: 'teacher-home',
+        component: () => import('pages/TeacherHomePage.vue')
+      },
+      {
+        path: 'moderator',
+        name: 'moderator-home',
+        component: () => import('pages/ModeratorHomePage.vue')
+      },
+      {
+        path: 'no-role',
+        name: 'no-role',
+        component: () => import('pages/NoRolePage.vue')
+      }
+    ]    
   },
   {
     path: '/:catchAll(.*)*',
