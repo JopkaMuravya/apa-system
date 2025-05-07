@@ -1,6 +1,12 @@
-django/.idea
+django/venv/
 django/db.sqlite3
-django/venv
-django/backend/__pycache__
+django/backend/__pycache__/
+django/__pycache__/
+django/.idea/
+django/backend/migrations/*.py
+!django/backend/migrations/__init__.py
+frontend/.vscode/
+frontend/node_modules/
 
-frontend/.vscode
+.DS_Store
+Thumbs.db
