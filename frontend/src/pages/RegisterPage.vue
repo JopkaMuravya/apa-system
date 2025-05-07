@@ -1,14 +1,70 @@
 <template>
-  <form @submit.prevent="onSubmit">
-    <input v-model="form.email" type="email" placeholder="Email" />
-    <input v-model="form.firstName" placeholder="Имя" />
-    <input v-model="form.lastName" placeholder="Фамилия" />
-    <input v-model="form.middleName" placeholder="Отчество" />
-    <input v-model="form.password" type="password" placeholder="Пароль" />
-    <input v-model="form.confirmPassword" type="password" placeholder="Подтверждение пароля" />
-    <button type="submit">Зарегистрироваться</button>
-    <button type="button" @click="goToLogin">Уже есть аккаунт?</button>
-  </form>
+  <div class="layer">
+    <div class="form_wrapper">
+      <div class="form_container">
+
+        <div class="title_container">
+          <h2>Регистрация</h2>
+        </div>
+
+        <div class="row clearfix">
+          <div class="">
+            <form @submit.prevent="onSubmit">
+              <div class="input_field">
+                <span class="icon">
+                  <i aria-hidden="true" class="fa-solid fa-user"></i>
+                </span>
+                <input v-model="form.firstName" placeholder="Имя" type="text"/>
+              </div>
+
+              <div class="input_field">
+                <span class="icon">
+                  <i aria-hidden="true" class="fa-solid fa-user"></i>
+                </span>
+                <input v-model="form.lastName" placeholder="Фамилия" type="text"/>
+              </div>
+
+              <div class="input_field">
+                <span class="icon">
+                  <i aria-hidden="true" class="fa-solid fa-user"></i>
+                </span>
+                <input v-model="form.middleName" placeholder="Отчество (при наличии)" type="text"/>
+              </div>
+
+              <div class="input_field">
+                <span class="icon">
+                  <i aria-hidden="true" class="fa-solid fa-envelope"></i>
+                </span>
+                <input v-model="form.email" type="email" placeholder="Email"/>
+              </div>
+
+              <div class="input_field">
+                <span class="icon">
+                  <i aria-hidden="true" class="fa fa-lock"></i>
+                </span>
+                <input v-model="form.password" placeholder="Пароль" type="password" id="password1"/>
+                <span class="eye" @click="hidePassword">
+                  <i aria-hidden="true" class="fa-solid fa-eye"></i>
+                </span>
+              </div>
+
+              <div class="input_field">
+                <span class="icon">
+                  <i aria-hidden="true" class="fa fa-lock"></i>
+                </span>
+                <input v-model="form.confirmPassword" placeholder="Подтверждение пароля" type="password" id="password2"/>
+              </div>
+
+              <input class="button" type="submit" value="Зарегистрироваться" />
+            </form>
+          </div>
+        </div>
+        <div class="login_container">
+          <a href="#" class="forgot_password" @click="goToLogin">Уже есть аккаунт? <b>Войти</b></a>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -52,11 +108,33 @@ export default {
       router.push('/login')
     }
 
+    const hidePassword = () => {
+      var x1 = document.getElementById('password1');
+      var x2 = document.getElementById('password2');
+
+      if (x1.type === 'password') {
+        x1.type = 'text';
+      } else {
+        x1.type = 'password';
+      }
+
+      if (x2.type === 'password') {
+        x2.type = 'text';
+      } else {
+        x2.type = 'password';
+      }
+    }
+
     return {
       form,
       onSubmit,
-      goToLogin
+      goToLogin,
+      hidePassword
     }
   }
 }
 </script>
+
+<style>
+@import "../css/auth.scss";
+</style>
