@@ -1,67 +1,61 @@
 <template>
   <div class="layer">
     <div class="form_wrapper">
-      <div class="form_container">
+      <div class="centered_container">
+        <h2>Регистрация</h2>
+      </div>
 
-        <div class="title_container">
-          <h2>Регистрация</h2>
+      <form @submit.prevent="onSubmit">
+        <div class="input_field">
+          <span class="icon">
+            <i aria-hidden="true" class="fa-solid fa-user"></i>
+          </span>
+          <input v-model="form.firstName" placeholder="Имя" type="text"/>
         </div>
 
-        <div class="row clearfix">
-          <div class="">
-            <form @submit.prevent="onSubmit">
-              <div class="input_field">
-                <span class="icon">
-                  <i aria-hidden="true" class="fa-solid fa-user"></i>
-                </span>
-                <input v-model="form.firstName" placeholder="Имя" type="text"/>
-              </div>
-
-              <div class="input_field">
-                <span class="icon">
-                  <i aria-hidden="true" class="fa-solid fa-user"></i>
-                </span>
-                <input v-model="form.lastName" placeholder="Фамилия" type="text"/>
-              </div>
-
-              <div class="input_field">
-                <span class="icon">
-                  <i aria-hidden="true" class="fa-solid fa-user"></i>
-                </span>
-                <input v-model="form.middleName" placeholder="Отчество (при наличии)" type="text"/>
-              </div>
-
-              <div class="input_field">
-                <span class="icon">
-                  <i aria-hidden="true" class="fa-solid fa-envelope"></i>
-                </span>
-                <input v-model="form.email" type="email" placeholder="Email"/>
-              </div>
-
-              <div class="input_field">
-                <span class="icon">
-                  <i aria-hidden="true" class="fa fa-lock"></i>
-                </span>
-                <input v-model="form.password" placeholder="Пароль" type="password" id="password1"/>
-                <span class="eye" @click="hidePassword">
-                  <i aria-hidden="true" class="fa-solid fa-eye"></i>
-                </span>
-              </div>
-
-              <div class="input_field">
-                <span class="icon">
-                  <i aria-hidden="true" class="fa fa-lock"></i>
-                </span>
-                <input v-model="form.confirmPassword" placeholder="Подтверждение пароля" type="password" id="password2"/>
-              </div>
-
-              <input class="button" type="submit" value="Зарегистрироваться" />
-            </form>
-          </div>
+        <div class="input_field">
+          <span class="icon">
+            <i aria-hidden="true" class="fa-solid fa-user"></i>
+          </span>
+          <input v-model="form.lastName" placeholder="Фамилия" type="text"/>
         </div>
-        <div class="login_container">
-          <a href="#" class="forgot_password" @click="goToLogin">Уже есть аккаунт? <b>Войти</b></a>
+
+        <div class="input_field">
+          <span class="icon">
+            <i aria-hidden="true" class="fa-solid fa-user"></i>
+          </span>
+          <input v-model="form.middleName" placeholder="Отчество (при наличии)" type="text"/>
         </div>
+
+        <div class="input_field">
+          <span class="icon">
+            <i aria-hidden="true" class="fa-solid fa-envelope"></i>
+          </span>
+          <input v-model="form.email" type="email" placeholder="Email"/>
+        </div>
+
+        <div class="input_field">
+          <span class="icon">
+            <i aria-hidden="true" class="fa fa-lock"></i>
+          </span>
+          <input v-model="form.password" placeholder="Пароль" type="password" id="password1"/>
+          <span class="eye" @click="hidePassword">
+            <i aria-hidden="true" class="fa-solid fa-eye"></i>
+          </span>
+        </div>
+
+        <div class="input_field">
+          <span class="icon">
+            <i aria-hidden="true" class="fa fa-lock"></i>
+          </span>
+          <input v-model="form.confirmPassword" placeholder="Подтверждение пароля" type="password" id="password2"/>
+        </div>
+
+        <input class="button" type="submit" value="Зарегистрироваться" />
+      </form>
+
+      <div class="centered_container">
+        <a href="#" class="forgot_password" @click="goToLogin">Уже есть аккаунт? <b>Войти</b></a>
       </div>
     </div>
   </div>

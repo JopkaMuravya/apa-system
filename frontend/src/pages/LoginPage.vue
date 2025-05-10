@@ -1,42 +1,36 @@
 <template>
   <div class="layer">
 			<div class="form_wrapper">
-            <div class="form_container">
-              <div class="title_container">
-                <h2>Вход</h2>
-              </div>
+        <div class="centered_container">
+          <h2>Вход</h2>
+        </div>
 
-              <div class="row clearfix">
-                <div>
-                  <form @submit.prevent="onSubmit">
-                    <div class="input_field">
-						            <span class="icon">
-                          <i class="fa-solid fa-envelope"></i>
-                        </span>
-                      	<input v-model="form.email" type="email" placeholder="Email"/>
-                    </div>
-
-                    <div class="input_field">
-						            <span class="icon">
-                          <i class="fa fa-lock"></i>
-                        </span>
-                        <input v-model="form.password" type="password" placeholder="Пароль" id="password"/>
-						            <span class="eye" @click="hidePassword">
-                          <i class="fa-solid fa-eye"></i>
-                        </span>
-                    </div>
-
-                    <input class="button" type="submit" value="Войти"/>
-                  </form>
-                </div>
-              </div>
-
-              <div class="login_container">
-                <a href="#" class="forgot_password" @click="goToRegister">Еще нет аккаунта? <b>Зарегистрироваться</b></a>
-              </div>
-            </div>
+        <form @submit.prevent="onSubmit">
+          <div class="input_field">
+              <span class="icon">
+                <i class="fa-solid fa-envelope"></i>
+              </span>
+              <input v-model="form.email" type="email" placeholder="Email"/>
           </div>
-		</div>
+
+          <div class="input_field">
+              <span class="icon">
+                <i class="fa fa-lock"></i>
+              </span>
+              <input v-model="form.password" type="password" placeholder="Пароль" id="password"/>
+              <span class="eye" @click="hidePassword">
+                <i class="fa-solid fa-eye"></i>
+              </span>
+          </div>
+
+          <input class="button" type="submit" value="Войти"/>
+        </form>
+
+        <div class="centered_container">
+          <a href="#" class="forgot_password" @click="goToRegister">Еще нет аккаунта? <b>Зарегистрироваться</b></a>
+        </div>
+      </div>
+  </div>
 </template>
 
 <script>

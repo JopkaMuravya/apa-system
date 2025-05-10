@@ -18,21 +18,12 @@ body {
 
 .layer {
   background-color: rgba(85, 104, 118, 0.7);
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-}
-
-.clearfix {
-  &:after {
-    content: "";
-    display: block;
-    clear: both;
-    visibility: hidden;
-    height: 0;
-  }
+  overflow-y: auto;
 }
 
 .form_wrapper {
@@ -56,7 +47,7 @@ body {
     margin: 0;
   }
 
-  .title_container, .login_container {
+  .centered_container {
     text-align: center;
     padding-bottom: 15px;
   }
@@ -65,19 +56,6 @@ body {
     font-size: 1.1em;
     line-height: 1.5em;
     margin: 0;
-  }
-
-  .row {
-    margin: 10px -15px;
-    >div {
-      padding: 0 15px;
-      box-sizing: border-box;
-    }
-  }
-
-  .col_half {
-    width: 50%;
-    float: left;
   }
 
   .input_field {
@@ -116,17 +94,10 @@ body {
     }
   }
 
-  .textarea_field {
-    >span {
-      >i {
-        padding-top: 10px;
-      }
-    }
-  }
-
   input[type="text"], [type="email"], [type="password"] {
     font-size: 16px;
-    width: 500px;
+    width: 100%;
+    max-width: 100%;
     padding: 8px 10px 9px 65px;
     height: 50px;
     border: 1px solid var(--grey);
@@ -155,6 +126,7 @@ body {
     height: 50px;
     line-height: 35px;
     width: 100%;
+    max-width: 100%;
     border: none;
     outline: none;
     cursor: pointer;
@@ -187,35 +159,5 @@ body {
 
   .forgot_password:hover{
     color: #888;
-  }
-}
-
-.form_container {
-  .row {
-    .col_half.last {
-      border-left: 1px solid var(--grey);
-    }
-  }
-}
-
-@media (max-width: 600px) {
-  .form_wrapper {
-    .col_half {
-      width: 100%;
-      float: none;
-    }
-  }
-  .bottom_row {
-    .col_half {
-      width: 50%;
-      float: left;
-    }
-  }
-  .form_container {
-    .row {
-      .col_half.last {
-        border-left: none;
-      }
-    }
   }
 }
