@@ -1,1 +1,18 @@
-// app global css in SCSS form
+@font-face {
+  font-family: "HeliosRegular";
+  src: url("../assets/fonts/HeliosRegular/HeliosRegular.eot");
+  src: url("../assets/fonts/HeliosRegular/HeliosRegular.eot?#iefix")format("embedded-opentype"),
+  url("../assets/fonts/HeliosRegular/HeliosRegular.woff") format("woff"),
+  url("../assets/fonts/HeliosRegular/HeliosRegular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-family: "HeliosBlack";
+  src: url("../assets/fonts/HeliosBlack/HeliosBlack.eot");
+  src: url("../assets/fonts/HeliosBlack/HeliosBlack.eot?#iefix")format("embedded-opentype"),
+  url("../assets/fonts/HeliosBlack/HeliosBlack.woff") format("woff"),
+  url("../assets/fonts/HeliosBlack/HeliosBlack.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+}
