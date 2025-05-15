@@ -14,7 +14,7 @@
           <td>{{ user.email }}</td>
           <td>
             <select v-model="user.role" @change="changeRole(user)">
-              <option value="">Без роли</option>
+              <option value="waiting">Без роли</option>
               <option value="student">Студент</option>
               <option value="teacher">Преподаватель</option>
               <option value="moderator">Модератор</option>
