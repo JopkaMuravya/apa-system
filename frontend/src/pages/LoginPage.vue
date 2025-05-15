@@ -1,42 +1,44 @@
 <template>
   <div class="layer">
-			<div class="form_wrapper">
-        <div class="centered_container">
-          <h2>Вход</h2>
-        </div>
-
-        <form @submit.prevent="onSubmit">
-          <div class="input_field">
-              <span class="icon">
-                <i class="fa-solid fa-envelope"></i>
-              </span>
-              <input v-model="form.email" type="email" placeholder="Email"/>
-          </div>
-
-          <div class="input_field">
-              <span class="icon">
-                <i class="fa fa-lock"></i>
-              </span>
-              <input v-model="form.password" type="password" placeholder="Пароль" id="password"/>
-              <span class="eye" @click="hidePassword">
-                <i class="fa-solid fa-eye"></i>
-              </span>
-          </div>
-
-          <input class="button" type="submit" value="Войти"/>
-        </form>
-
-        <div class="centered_container">
-          <a href="#" class="forgot_password" @click="goToRegister">Еще нет аккаунта? <b>Зарегистрироваться</b></a>
-        </div>
+    <div class="form_wrapper">
+      <div class="centered_container">
+        <h2>Вход</h2>
       </div>
+
+      <form @submit.prevent="onSubmit">
+        <div class="input_field">
+          <span class="icon">
+            <i class="fa-solid fa-envelope"></i>
+          </span>
+          <input v-model="form.email" type="email" placeholder="Email"/>
+        </div>
+
+        <div class="input_field">
+          <span class="icon">
+            <i class="fa fa-lock"></i>
+          </span>
+          <input v-model="form.password" type="password" placeholder="Пароль" id="password"/>
+          <span class="eye" @click="hidePassword">
+            <i class="fa-solid fa-eye"></i>
+          </span>
+        </div>
+
+        <input class="button" type="submit" value="Войти"/>
+      </form>
+
+      <div class="centered_container">
+        <a href="#" class="forgot_password" @click="goToRegister">Еще нет аккаунта? <b>Зарегистрироваться</b></a>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { api } from 'boot/axios'
+import axios from 'axios'
+
+const unauthApi = axios.create({ baseURL: 'http://localhost:8000' }) // ❗ Без токена
 
 export default {
   setup() {
@@ -49,7 +51,7 @@ export default {
 
     const onSubmit = async () => {
       try {
-        const response = await api.post('/api/login/', {
+        const response = await unauthApi.post('/api/login/', {
           email: form.value.email,
           password: form.value.password
         })
@@ -86,12 +88,8 @@ export default {
     }
 
     const hidePassword = () => {
-      var x = document.getElementById('password');
-      if (x.type === 'password') {
-        x.type = 'text';
-      } else {
-        x.type = 'password';
-      }
+      const x = document.getElementById('password')
+      x.type = x.type === 'password' ? 'text' : 'password'
     }
 
     return {
@@ -100,7 +98,7 @@ export default {
       goToRegister,
       hidePassword
     }
-  },
+  }
 }
 </script>
 

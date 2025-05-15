@@ -1,11 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
-from rest_framework import generics
+from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, get_user_model
 
 from .serializers import UserSerializer
+from .permissions import IsModerator  
+
+User = get_user_model()
 
 
 class RegisterAPI(generics.GenericAPIView):
@@ -16,9 +18,7 @@ class RegisterAPI(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-
-        token, created = Token.objects.get_or_create(user=user)
-
+        token, _ = Token.objects.get_or_create(user=user)
         return Response({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": token.key
@@ -34,10 +34,31 @@ class LoginAPI(APIView):
         user = authenticate(request, email=email, password=password)
 
         if user is not None:
-            login(request, user)  
-            token, created = Token.objects.get_or_create(user=user)
+            login(request, user)
+            token, _ = Token.objects.get_or_create(user=user)
             return Response({
                 "user": UserSerializer(user).data,
                 "token": token.key
             })
         return Response({'detail': 'Неверные данные'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserListAPI(APIView):
+    permission_classes = [IsModerator]  
+
+    def get(self, request):
+        users = User.objects.exclude(role__in=['moderator', 'admin'])
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+    def put(self, request):
+        user_id = request.data.get('id')
+        new_role = request.data.get('role')
+
+        try:
+            user = User.objects.get(id=user_id)
+            user.role = new_role
+            user.save()
+            return Response({'success': True})
+        except User.DoesNotExist:
+            return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
