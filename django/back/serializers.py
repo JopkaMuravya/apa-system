@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Group
+
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -28,3 +29,9 @@ class UserSerializer(serializers.ModelSerializer):
             middle_name=validated_data.get('middle_name', ''),
             role='waiting',
         )
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']

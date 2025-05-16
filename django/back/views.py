@@ -4,7 +4,8 @@ from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, get_user_model
 
-from .serializers import UserSerializer
+from .models import Group
+from .serializers import UserSerializer, GroupSerializer
 from .permissions import IsModerator  
 
 User = get_user_model()
@@ -62,3 +63,19 @@ class UserListAPI(APIView):
             return Response({'success': True})
         except User.DoesNotExist:
             return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class GroupListAPI(APIView):
+    permission_classes = [IsModerator]
+
+    def get(self, request):
+        groups = Group.objects.all()
+        serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = GroupSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
