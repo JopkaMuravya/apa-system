@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Group
+from .models import User, Group, Subject, StudentGroup
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -35,3 +35,25 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['id', 'name']
+
+
+class GroupDetailSerializer(serializers.ModelSerializer):
+    subjects = serializers.SerializerMethodField()
+    students = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Group
+        fields = ['id', 'name', 'subjects', 'students']
+
+    def get_subjects(self, group):
+        return [{'id': s.id, 'name': s.name} for s in Subject.objects.filter(subject_groups__group=group)]
+
+    def get_students(self, group):
+        return [
+            {
+                'id': student.id,
+                'full_name': f"{student.last_name} {student.first_name} {student.middle_name or ''}".strip(),
+                'email': student.email
+            }
+            for student in User.objects.filter(student_groups__group=group)
+        ]

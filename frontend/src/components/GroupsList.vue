@@ -28,11 +28,13 @@ import SubjectIcon from '../assets/icons/programs.png';
 import AddIcon from '../assets/icons/add_blue.png';
 import AddIcon2 from '../assets/icons/add_red.png';
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
 
 export default {
   name: 'GroupList',
   setup() {
+    const router = useRouter()
     const groups = ref([])
     const currentAddIcon = ref(AddIcon)
 
@@ -57,7 +59,13 @@ export default {
     }
 
     const openGroup = (group) => {
-      alert(`Открыта группа: ${group.name}`)
+      router.push({
+        name: 'group-detail',
+        params: {
+          id: group.id,
+          name: encodeURIComponent(group.name)
+        }
+      })
     }
 
     const hoverAdd = () => {

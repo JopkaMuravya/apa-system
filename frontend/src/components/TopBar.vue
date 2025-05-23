@@ -2,48 +2,82 @@
   <div class="top-menu">
     <div class="search-wrapper">
       <img class="search-icon" :src="SearchIcon" alt="Поиск" />
-      <input type="text"
-              class="search-input"
-              v-model="searchQuery"
-              placeholder="Поиск..." />
+      <input
+        type="text"
+        class="search-input"
+        v-model="searchQuery"
+        placeholder="Поиск..."
+      />
     </div>
-    <div class="user">Сущенко Андрей Андреевич</div>
-    <button class="exit-button" @click="login" @mouseover="hoverExit" @mouseleave="unhoverExit">
+    <div class="user">{{ fullName }}</div>
+    <button
+      class="exit-button"
+      @click="login"
+      @mouseover="hoverExit"
+      @mouseleave="unhoverExit"
+    >
       <img :src="currentExitIcon" alt="Выйти" />
     </button>
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent } from 'vue';
-  import AddIcon from '../assets/icons/add.png';
-  import ExitIcon from '../assets/icons/exit_blue.png';
-  import ExitIcon2 from '../assets/icons/exit_red.png';
-  import SearchIcon from '../assets/icons/search.png';
+import { defineComponent, ref, onMounted } from 'vue'
+import ExitIcon from '../assets/icons/exit_blue.png'
+import ExitIcon2 from '../assets/icons/exit_red.png'
+import SearchIcon from '../assets/icons/search.png'
 
-  export default defineComponent({
-    data() {
-      return {
-        searchQuery: '',
-        AddIcon,
-        ExitIcon,
-        ExitIcon2,
-        SearchIcon,
-        currentExitIcon: ExitIcon
-      };
-    },
-    methods: {
-      login() {
-        this.$router.push('/login');
-      },
-      hoverExit() {
-        this.currentExitIcon = this.ExitIcon2;
-      },
-      unhoverExit() {
-        this.currentExitIcon = this.ExitIcon;
+export default defineComponent({
+  name: 'TopBar',
+  setup() {
+    const searchQuery = ref('')
+    const currentExitIcon = ref(ExitIcon)
+    const fullName = ref('')
+
+    onMounted(() => {
+      const userRaw = localStorage.getItem('user')
+      if (userRaw) {
+        try {
+          const user = JSON.parse(userRaw)
+          const parts = [
+            user.last_name,
+            user.first_name,
+            user.middle_name || ''
+          ].filter(Boolean)
+          fullName.value = parts.join(' ')
+        } catch {
+          fullName.value = 'Пользователь'
+        }
+      } else {
+        fullName.value = 'Пользователь'
       }
-    },
-  });
+    })
+
+    const login = () => {
+      localStorage.removeItem('user')
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
+
+    const hoverExit = () => {
+      currentExitIcon.value = ExitIcon2
+    }
+
+    const unhoverExit = () => {
+      currentExitIcon.value = ExitIcon
+    }
+
+    return {
+      searchQuery,
+      currentExitIcon,
+      SearchIcon,
+      fullName,
+      login,
+      hoverExit,
+      unhoverExit
+    }
+  }
+})
 </script>
 
 <style scoped>
