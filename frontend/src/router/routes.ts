@@ -36,11 +36,17 @@ const routes = [
         component: () => import('pages/ModeratorHomePage.vue')
       },
       {
+        path: 'moderator/group/:id/:name?',
+        name: 'group-detail',
+        component: () => import('pages/GroupDetailPage.vue'),
+        props: true
+      },
+      {
         path: 'no-role',
         name: 'no-role',
         component: () => import('pages/NoRolePage.vue')
       }
-    ]    
+    ]
   },
   {
     path: '/:catchAll(.*)*',
