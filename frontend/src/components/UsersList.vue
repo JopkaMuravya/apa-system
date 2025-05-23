@@ -39,7 +39,7 @@
               <button class="edit-button" @click="startEdit(user)">
                 <img :src="EditIcon" alt="Редактировать" />
               </button>
-              <button class="delete-button" @click="deleteUser(user)">
+              <button class="delete-button" @click="openDeleteModal(user)">
                 <img :src="DeleteIcon" alt="Удалить" />
               </button>
             </td>
@@ -56,6 +56,17 @@
         <h2>Ошибка</h2>
         <p>{{ modalErrorMessage }}</p>
         <button @click="showErrorModal = false">Закрыть</button>
+      </div>
+    </div>
+
+    <div v-if="showDeleteModal" class="modal-backdrop">
+      <div class="error-modal">
+        <h2>Подтверждение</h2>
+        <p>Удалить пользователя {{ userToDelete?.full_name }}?</p>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+          <button @click="confirmDeleteUser">Да</button>
+          <button @click="cancelDeleteUser">Нет</button>
+        </div>
       </div>
     </div>
   </div>
@@ -93,6 +104,8 @@ export default defineComponent({
 
     const showErrorModal = ref(false)
     const modalErrorMessage = ref('')
+    const showDeleteModal = ref(false)
+    const userToDelete = ref<User | null>(null)
 
     const fetchUsers = async () => {
       loading.value = true
@@ -179,16 +192,28 @@ export default defineComponent({
       }
     }
 
-    const deleteUser = async (user: User) => {
-      const confirmed = confirm(`Удалить пользователя ${user.full_name}?`)
-      if (!confirmed) return
+    const openDeleteModal = (user: User) => {
+      userToDelete.value = user
+      showDeleteModal.value = true
+    }
+
+    const cancelDeleteUser = () => {
+      userToDelete.value = null
+      showDeleteModal.value = false
+    }
+
+    const confirmDeleteUser = async () => {
+      if (!userToDelete.value) return
 
       try {
-        await api.delete(`/api/users/${user.id}/`)
+        await api.delete(`/api/users/${userToDelete.value.id}/`)
         fetchUsers()
       } catch (err) {
         showErrorModal.value = true
         modalErrorMessage.value = 'Не удалось удалить пользователя'
+      } finally {
+        userToDelete.value = null
+        showDeleteModal.value = false
       }
     }
 
@@ -208,9 +233,14 @@ export default defineComponent({
       startEdit,
       cancelEdit,
       saveUser,
-      deleteUser,
+      deleteUser: openDeleteModal,
       showErrorModal,
-      modalErrorMessage
+      modalErrorMessage,
+      showDeleteModal,
+      userToDelete,
+      confirmDeleteUser,
+      cancelDeleteUser,
+      openDeleteModal
     }
   }
 })
