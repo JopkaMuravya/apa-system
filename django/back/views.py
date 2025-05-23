@@ -103,3 +103,16 @@ class GroupDetailAPI(APIView):
 
         serializer = GroupDetailSerializer(group)
         return Response(serializer.data)
+
+    def delete(self, request, pk):
+        student_id = request.query_params.get('student_id')
+
+        if not student_id:
+            return Response({'detail': 'student_id обязателен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            student_group = StudentGroup.objects.get(group_id=pk, student_id=student_id)
+            student_group.delete()
+            return Response({'success': True}, status=status.HTTP_204_NO_CONTENT)
+        except StudentGroup.DoesNotExist:
+            return Response({'detail': 'Такой студент не состоит в группе'}, status=status.HTTP_404_NOT_FOUND)
