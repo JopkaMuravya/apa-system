@@ -3,8 +3,8 @@
     <table>
       <thead>
         <tr>
-          <th>Имя</th>
-          <th>Email</th>
+          <th>ФИО</th>
+          <th>Корпоративная почта</th>
           <th>Роль</th>
           <th class="action-header">Действия</th>
         </tr>
@@ -13,22 +13,15 @@
         <tr v-for="user in users" :key="user.id">
           <td>{{ user.full_name }}</td>
           <td>{{ user.email }}</td>
-          <td>
-            <select v-model="user.role" @change="changeRole(user)">
-              <option value="waiting">Без роли</option>
-              <option value="student">Студент</option>
-              <option value="teacher">Преподаватель</option>
-              <option value="moderator">Модератор</option>
-            </select>
+          <td>{{ getRoleLabel(user.role) }}</td>
+          <td class="action-buttons">
+            <button class="edit-button" @click="editUser(user)">
+              <img :src="EditIcon" alt="Редактировать" />
+            </button>
+            <button class="delete-button" @click="deleteUser(user)">
+              <img :src="DeleteIcon" alt="Удалить" />
+            </button>
           </td>
-            <td class="action-buttons">
-              <button class="edit-button" @click="editUser(user)">
-                <img :src="EditIcon" alt="Редактировать" />
-              </button>
-              <button class="delete-button" @click="deleteUser(user)">
-                <img :src="DeleteIcon" alt="Удалить" />
-              </button>
-            </td>
         </tr>
       </tbody>
     </table>
@@ -68,24 +61,19 @@ export default defineComponent({
           role: user.role || '',
         }))
       } catch (err: unknown) {
-        if (err instanceof Error) {
-          error.value = err.message
-        } else {
-          error.value = 'Не удалось загрузить пользователей'
-        }
+        error.value = err instanceof Error ? err.message : 'Не удалось загрузить пользователей'
       } finally {
         loading.value = false
       }
     }
 
-    const changeRole = async (user: User) => {
-      try {
-        await api.put('/api/users/', {
-          id: user.id,
-          role: user.role
-        })
-      } catch (err) {
-        alert('Ошибка при изменении роли')
+    const getRoleLabel = (role: string | null) => {
+      switch (role) {
+        case 'student': return 'Студент'
+        case 'teacher': return 'Преподаватель'
+        case 'moderator': return 'Модератор'
+        case 'admin': return 'Админ'
+        default: return 'Без роли'
       }
     }
 
@@ -103,9 +91,9 @@ export default defineComponent({
       users,
       loading,
       error,
-      changeRole,
       deleteUser,
       editUser,
+      getRoleLabel,
       DeleteIcon,
       EditIcon
     }
@@ -135,11 +123,6 @@ td.action-buttons {
   width: 90px;
   text-align: center;
   white-space: nowrap;
-}
-
-select {
-  padding: 6px;
-  border-radius: 4px;
 }
 
 .action-buttons {
