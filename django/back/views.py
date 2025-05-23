@@ -45,7 +45,7 @@ class LoginAPI(APIView):
 
 
 class UserListAPI(APIView):
-    permission_classes = [IsModerator]  
+    permission_classes = [IsModerator]
 
     def get(self, request):
         users = User.objects.exclude(role__in=['moderator', 'admin'])
@@ -54,12 +54,24 @@ class UserListAPI(APIView):
 
     def put(self, request):
         user_id = request.data.get('id')
-        new_role = request.data.get('role')
-
         try:
             user = User.objects.get(id=user_id)
-            user.role = new_role
+
+            user.email = request.data.get('email', user.email)
+            user.first_name = request.data.get('first_name', user.first_name)
+            user.last_name = request.data.get('last_name', user.last_name)
+            user.middle_name = request.data.get('middle_name', user.middle_name)
+            user.role = request.data.get('role', user.role)
+
             user.save()
+            return Response({'success': True})
+        except User.DoesNotExist:
+            return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk=None):
+        try:
+            user = User.objects.get(id=pk)
+            user.delete()
             return Response({'success': True})
         except User.DoesNotExist:
             return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)

@@ -11,17 +11,39 @@
       </thead>
       <tbody>
         <tr v-for="user in users" :key="user.id">
-          <td>{{ user.full_name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ getRoleLabel(user.role) }}</td>
-          <td class="action-buttons">
-            <button class="edit-button" @click="editUser(user)">
-              <img :src="EditIcon" alt="Редактировать" />
-            </button>
-            <button class="delete-button" @click="deleteUser(user)">
-              <img :src="DeleteIcon" alt="Удалить" />
-            </button>
-          </td>
+          <template v-if="editingUserId === user.id">
+            <td><input v-model="editForm.full_name" /></td>
+            <td><input v-model="editForm.email" /></td>
+            <td>
+              <select v-model="editForm.role">
+                <option value="waiting">Без роли</option>
+                <option value="student">Студент</option>
+                <option value="teacher">Преподаватель</option>
+                <option value="moderator">Модератор</option>
+              </select>
+            </td>
+            <td class="action-buttons">
+              <button class="save-button" @click="saveUser">
+                <img :src="AcceptIcon" alt="Сохранить" />
+              </button>
+              <button class="cancel-button" @click="cancelEdit">
+                <img :src="CancelIcon" alt="Отменить" />
+              </button>
+            </td>
+          </template>
+          <template v-else>
+            <td>{{ user.full_name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ getRoleLabel(user.role) }}</td>
+            <td class="action-buttons">
+              <button class="edit-button" @click="startEdit(user)">
+                <img :src="EditIcon" alt="Редактировать" />
+              </button>
+              <button class="delete-button" @click="deleteUser(user)">
+                <img :src="DeleteIcon" alt="Удалить" />
+              </button>
+            </td>
+          </template>
         </tr>
       </tbody>
     </table>
@@ -36,6 +58,9 @@ import { defineComponent, ref, onMounted } from 'vue'
 import { api } from 'boot/axios'
 import DeleteIcon from '../assets/icons/delete.png'
 import EditIcon from '../assets/icons/edit.png'
+import AcceptIcon from '../assets/icons/accept.png'
+import CancelIcon from '../assets/icons/cancel.png'
+import type { AxiosError } from 'axios'
 
 interface User {
   id: number
@@ -50,6 +75,13 @@ export default defineComponent({
     const users = ref<User[]>([])
     const loading = ref(false)
     const error = ref('')
+    const editingUserId = ref<number | null>(null)
+    const editForm = ref({
+      id: 0,
+      full_name: '',
+      email: '',
+      role: ''
+    })
 
     const fetchUsers = async () => {
       loading.value = true
@@ -72,17 +104,59 @@ export default defineComponent({
         case 'student': return 'Студент'
         case 'teacher': return 'Преподаватель'
         case 'moderator': return 'Модератор'
-        case 'admin': return 'Админ'
         default: return 'Без роли'
       }
     }
 
-    const deleteUser = (user: User) => {
-      console.log('Удалить пользователя:', user)
+    const startEdit = (user: User) => {
+      editingUserId.value = user.id
+      editForm.value = {
+        id: user.id,
+        full_name: user.full_name,
+        email: user.email,
+        role: user.role ?? ''
+      }
     }
 
-    const editUser = (user: User) => {
-      console.log('Редактировать пользователя:', user)
+    const cancelEdit = () => {
+      editingUserId.value = null
+    }
+
+    const saveUser = async () => {
+      try {
+        const parts = editForm.value.full_name.trim().split(/\s+/)
+        const last_name = parts[0] || ''
+        const first_name = parts[1] || ''
+        const middle_name = parts.slice(2).join(' ') || ''
+
+        await api.put('/api/users/', {
+          id: editForm.value.id,
+          email: editForm.value.email,
+          role: editForm.value.role,
+          first_name,
+          last_name,
+          middle_name
+        })
+
+        editingUserId.value = null
+        fetchUsers()
+      } catch (err: unknown) {
+        const e = err as AxiosError<{ detail?: string }>
+        const detail = e.response?.data?.detail || 'Ошибка при сохранении'
+        alert(detail)
+      }
+    }
+
+    const deleteUser = async (user: User) => {
+      const confirmed = confirm(`Удалить пользователя ${user.full_name}?`)
+      if (!confirmed) return
+
+      try {
+        await api.delete(`/api/users/${user.id}/`)
+        fetchUsers()
+      } catch (err) {
+        alert('Не удалось удалить пользователя')
+      }
     }
 
     onMounted(fetchUsers)
@@ -91,11 +165,17 @@ export default defineComponent({
       users,
       loading,
       error,
-      deleteUser,
-      editUser,
-      getRoleLabel,
       DeleteIcon,
-      EditIcon
+      EditIcon,
+      AcceptIcon,
+      CancelIcon,
+      editingUserId,
+      editForm,
+      getRoleLabel,
+      startEdit,
+      cancelEdit,
+      saveUser,
+      deleteUser
     }
   }
 })
@@ -132,7 +212,9 @@ td.action-buttons {
 }
 
 .delete-button,
-.edit-button {
+.edit-button,
+.save-button,
+.cancel-button {
   border: none;
   border-radius: 6px;
   width: 30px;
@@ -145,28 +227,47 @@ td.action-buttons {
   justify-content: center;
 }
 
-.delete-button {
-  background-color: #d9534f;
-}
-
-.delete-button:hover {
-  transform: scale(1.1);
-  background-color: #c9302c;
-}
-
 .edit-button {
   background-color: #5cb85c;
 }
 
 .edit-button:hover {
-  transform: scale(1.1);
   background-color: #4cae4c;
 }
 
-.delete-button img,
-.edit-button img {
+.delete-button {
+  background-color: #d9534f;
+}
+
+.delete-button:hover {
+  background-color: #c9302c;
+}
+
+.save-button {
+  background-color: #5cb85c;
+}
+
+.save-button:hover {
+  background-color: #4cae4c;
+}
+
+.cancel-button {
+  background-color: #d9534f;
+}
+
+.cancel-button:hover {
+  background-color: #c9302c;
+}
+
+img {
   width: 16px;
   height: 16px;
+}
+
+input, select {
+  width: 100%;
+  padding: 5px;
+  font-size: 14px;
 }
 
 .loader {
