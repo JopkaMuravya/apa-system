@@ -2,6 +2,8 @@ django/venv/
 django/db.sqlite3
 django/backend/__pycache__/
 django/__pycache__/
+django/back/__pycache__/
+django/back/migrations/__pycache__/
 django/.idea/
 django/backend/migrations/*.py
 !django/backend/migrations/__init__.py
