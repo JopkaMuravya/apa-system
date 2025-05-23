@@ -50,6 +50,14 @@
 
     <div v-if="loading" class="loader">Загрузка...</div>
     <div v-if="error" class="error">{{ error }}</div>
+
+    <div v-if="showErrorModal" class="modal-backdrop">
+      <div class="error-modal">
+        <h2>Ошибка</h2>
+        <p>{{ modalErrorMessage }}</p>
+        <button @click="showErrorModal = false">Закрыть</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -82,6 +90,9 @@ export default defineComponent({
       email: '',
       role: ''
     })
+
+    const showErrorModal = ref(false)
+    const modalErrorMessage = ref('')
 
     const fetchUsers = async () => {
       loading.value = true
@@ -141,9 +152,30 @@ export default defineComponent({
         editingUserId.value = null
         fetchUsers()
       } catch (err: unknown) {
-        const e = err as AxiosError<{ detail?: string }>
-        const detail = e.response?.data?.detail || 'Ошибка при сохранении'
-        alert(detail)
+        const e = err as AxiosError<Record<string, unknown>>
+        const data = e.response?.data
+
+        if (typeof data?.detail === 'string') {
+          modalErrorMessage.value = data.detail
+        } else if (data && typeof data === 'object') {
+          const messages: string[] = []
+
+          Object.values(data).forEach(fieldErrors => {
+            if (Array.isArray(fieldErrors)) {
+              fieldErrors.forEach(error => {
+                if (typeof error === 'string') messages.push(error)
+              })
+            } else if (typeof fieldErrors === 'string') {
+              messages.push(fieldErrors)
+            }
+          })
+
+          modalErrorMessage.value = messages.join(' ')
+        } else {
+          modalErrorMessage.value = 'Ошибка при сохранении'
+        }
+
+        showErrorModal.value = true
       }
     }
 
@@ -155,7 +187,8 @@ export default defineComponent({
         await api.delete(`/api/users/${user.id}/`)
         fetchUsers()
       } catch (err) {
-        alert('Не удалось удалить пользователя')
+        showErrorModal.value = true
+        modalErrorMessage.value = 'Не удалось удалить пользователя'
       }
     }
 
@@ -175,7 +208,9 @@ export default defineComponent({
       startEdit,
       cancelEdit,
       saveUser,
-      deleteUser
+      deleteUser,
+      showErrorModal,
+      modalErrorMessage
     }
   }
 })
@@ -278,5 +313,51 @@ input, select {
 .error {
   margin-top: 10px;
   color: red;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-modal {
+  background: white;
+  padding: 25px 30px;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 280px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.error-modal h2 {
+  margin: 0 0 10px;
+  font-size: 24px;
+}
+
+.error-modal p {
+  margin: 0 0 15px;
+  font-size: 14px;
+  color: #333;
+}
+
+.error-modal button {
+  background-color: #6995d0;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.error-modal button:hover {
+  background-color: #527cbf;
 }
 </style>

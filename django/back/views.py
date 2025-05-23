@@ -53,20 +53,19 @@ class UserListAPI(APIView):
         return Response(serializer.data)
 
     def put(self, request):
-        user_id = request.data.get('id')
         try:
-            user = User.objects.get(id=user_id)
-
-            user.email = request.data.get('email', user.email)
-            user.first_name = request.data.get('first_name', user.first_name)
-            user.last_name = request.data.get('last_name', user.last_name)
-            user.middle_name = request.data.get('middle_name', user.middle_name)
-            user.role = request.data.get('role', user.role)
-
-            user.save()
-            return Response({'success': True})
+            user = User.objects.get(id=request.data.get('id'))
         except User.DoesNotExist:
-            return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UserSerializer(user, data=request.data, partial=True, context={'request': request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success': True})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def delete(self, request, pk=None):
         try:

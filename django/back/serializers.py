@@ -7,6 +7,9 @@ class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     email = serializers.EmailField(required=True)
 
+    first_name = serializers.CharField(required=False, allow_blank=True)
+    last_name = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = User
         fields = (
@@ -39,13 +42,17 @@ class UserSerializer(serializers.ModelSerializer):
             current_user_id = request.data.get('id')
 
         if User.objects.exclude(id=current_user_id).filter(email=value).exists():
-            raise serializers.ValidationError("Пользователь с такой почтой уже существует.")
+            raise serializers.ValidationError("Пользователь с такой почтой уже существует")
         return value
 
-    def validate(self, attrs):
-        if not attrs.get('first_name') or not attrs.get('last_name'):
-            raise serializers.ValidationError("Фамилия и имя обязательны для заполнения.")
-        return attrs
+    def validate(self, data):
+        first_name = data.get('first_name', '').strip()
+        last_name = data.get('last_name', '').strip()
+
+        if not first_name or not last_name or not first_name.isalpha() or not last_name.isalpha():
+            raise serializers.ValidationError("Введите корректное ФИО")
+
+        return data
 
 
 class GroupSerializer(serializers.ModelSerializer):
