@@ -5,12 +5,23 @@
         <tr>
           <th>ФИО</th>
           <th>Корпоративная почта</th>
-          <th>Роль</th>
+          <th>
+            <div class="role-header">
+              <span>Роль</span>
+              <select v-model="selectedRole" class="role-filter">
+                <option value="">Все</option>
+                <option value="waiting">Без роли</option>
+                <option value="student">Студент</option>
+                <option value="teacher">Преподаватель</option>
+                <option value="moderator">Модератор</option>
+              </select>
+            </div>
+          </th>
           <th class="action-header">Действия</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users" :key="user.id">
+        <tr v-for="user in filteredUsers" :key="user.id">
           <template v-if="editingUserId === user.id">
             <td><input v-model="editForm.full_name" /></td>
             <td><input v-model="editForm.email" /></td>
@@ -73,7 +84,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, computed, onMounted } from 'vue'
 import { api } from 'boot/axios'
 import DeleteIcon from '../assets/icons/delete.png'
 import EditIcon from '../assets/icons/edit.png'
@@ -92,6 +103,7 @@ export default defineComponent({
   name: 'UsersList',
   setup() {
     const users = ref<User[]>([])
+    const selectedRole = ref('')
     const loading = ref(false)
     const error = ref('')
     const editingUserId = ref<number | null>(null)
@@ -122,6 +134,12 @@ export default defineComponent({
         loading.value = false
       }
     }
+
+    const filteredUsers = computed(() =>
+      selectedRole.value
+        ? users.value.filter(user => user.role === selectedRole.value)
+        : users.value
+    )
 
     const getRoleLabel = (role: string | null) => {
       switch (role) {
@@ -172,7 +190,6 @@ export default defineComponent({
           modalErrorMessage.value = data.detail
         } else if (data && typeof data === 'object') {
           const messages: string[] = []
-
           Object.values(data).forEach(fieldErrors => {
             if (Array.isArray(fieldErrors)) {
               fieldErrors.forEach(error => {
@@ -182,7 +199,6 @@ export default defineComponent({
               messages.push(fieldErrors)
             }
           })
-
           modalErrorMessage.value = messages.join(' ')
         } else {
           modalErrorMessage.value = 'Ошибка при сохранении'
@@ -221,6 +237,8 @@ export default defineComponent({
 
     return {
       users,
+      selectedRole,
+      filteredUsers,
       loading,
       error,
       DeleteIcon,
@@ -233,14 +251,13 @@ export default defineComponent({
       startEdit,
       cancelEdit,
       saveUser,
-      deleteUser: openDeleteModal,
+      openDeleteModal,
       showErrorModal,
       modalErrorMessage,
       showDeleteModal,
       userToDelete,
       confirmDeleteUser,
-      cancelDeleteUser,
-      openDeleteModal
+      cancelDeleteUser
     }
   }
 })
@@ -249,6 +266,17 @@ export default defineComponent({
 <style scoped>
 .users-list {
   font-family: 'Arial', sans-serif;
+}
+
+.role-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.role-filter {
+  font-size: 14px;
+  padding: 4px 6px;
 }
 
 table {
@@ -261,6 +289,7 @@ th, td {
   padding: 10px;
   border: 1px solid #ccc;
   text-align: left;
+  vertical-align: middle;
 }
 
 th.action-header,
