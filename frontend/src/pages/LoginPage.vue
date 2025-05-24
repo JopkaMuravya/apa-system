@@ -1,6 +1,7 @@
 <template>
-  <div class="layer">
-			<div class="form_wrapper">
+  <div class="background">
+    <div class="layer">
+      <div class="form_wrapper">
         <div class="centered_container">
           <h2>Вход</h2>
         </div>
@@ -30,6 +31,7 @@
           <a href="#" class="forgot_password" @click="goToRegister">Еще нет аккаунта? <b>Зарегистрироваться</b></a>
         </div>
       </div>
+    </div>
   </div>
 </template>
 
