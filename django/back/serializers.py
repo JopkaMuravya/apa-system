@@ -81,3 +81,9 @@ class GroupDetailSerializer(serializers.ModelSerializer):
             }
             for student in User.objects.filter(student_groups__group=group)
         ]
+
+
+class SubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = ['id', 'name']

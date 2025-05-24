@@ -26,6 +26,7 @@ import { defineComponent, ref, onMounted } from 'vue'
 import ExitIcon from '../assets/icons/exit_blue.png'
 import ExitIcon2 from '../assets/icons/exit_red.png'
 import SearchIcon from '../assets/icons/search.png'
+import { api } from '../boot/axios'
 
 export default defineComponent({
   name: 'TopBar',
@@ -34,23 +35,24 @@ export default defineComponent({
     const currentExitIcon = ref(ExitIcon)
     const fullName = ref('')
 
-    onMounted(() => {
-      const userRaw = localStorage.getItem('user')
-      if (userRaw) {
-        try {
-          const user = JSON.parse(userRaw)
-          const parts = [
-            user.last_name,
-            user.first_name,
-            user.middle_name || ''
-          ].filter(Boolean)
-          fullName.value = parts.join(' ')
-        } catch {
-          fullName.value = 'Пользователь'
-        }
-      } else {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await api.get('/api/current-user/')
+        const user = response.data
+        const parts = [
+          user.last_name,
+          user.first_name,
+          user.middle_name || ''
+        ].filter(Boolean)
+        fullName.value = parts.join(' ')
+      } catch (error) {
+        console.error('Ошибка при получении данных пользователя:', error)
         fullName.value = 'Пользователь'
       }
+    }
+
+    onMounted(() => {
+      fetchCurrentUser()
     })
 
     const login = () => {

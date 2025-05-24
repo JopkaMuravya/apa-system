@@ -4,7 +4,9 @@ from .views import (
     LoginAPI,
     UserListAPI,
     GroupListAPI,
-    GroupDetailAPI
+    GroupDetailAPI,
+    CurrentUserAPI,
+    TeacherSubjectsAPI,
 )
 
 urlpatterns = [
@@ -14,4 +16,6 @@ urlpatterns = [
     path('api/groups/', GroupListAPI.as_view(), name='group-list'),
     path('api/groups/<int:pk>/', GroupDetailAPI.as_view(), name='group-detail'),
     path('api/users/<int:pk>/', UserListAPI.as_view(), name='user-detail'),
+    path('api/current-user/', CurrentUserAPI.as_view(), name='current-user'),
+    path('api/teacher/subjects/', TeacherSubjectsAPI.as_view(), name='teacher-subjects'),
 ]

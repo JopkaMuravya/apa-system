@@ -4,8 +4,8 @@ from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, get_user_model
 
-from .models import Group, GroupSubject, StudentGroup
-from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer
+from .models import Group, GroupSubject, StudentGroup, TeacherSubject
+from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, SubjectSerializer
 from .permissions import IsModerator  
 
 User = get_user_model()
@@ -66,7 +66,6 @@ class UserListAPI(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def delete(self, request, pk=None):
         try:
             user = User.objects.get(id=pk)
@@ -102,4 +101,24 @@ class GroupDetailAPI(APIView):
             return Response({'error': 'Группа не найдена'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = GroupDetailSerializer(group)
+        return Response(serializer.data)
+
+
+class CurrentUserAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+
+class TeacherSubjectsAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        teacher_subjects = TeacherSubject.objects.filter(teacher=request.user).select_related('subject')
+        subjects = [ts.subject for ts in teacher_subjects]
+
+        serializer = SubjectSerializer(subjects, many=True)
+
         return Response(serializer.data)

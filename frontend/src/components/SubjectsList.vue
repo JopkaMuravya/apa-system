@@ -26,6 +26,7 @@
     import SubjectIcon from '../assets/icons/programs.png';
     import AddIcon from '../assets/icons/add_blue.png';
     import AddIcon2 from '../assets/icons/add_red.png';
+    import { api } from '../boot/axios';
   
   export default {
     data() {
@@ -34,25 +35,41 @@
         AddIcon,
         AddIcon2,
         currentAddIcon: AddIcon,
-        subjects: [
-          { id: 1, name: 'Консультация по дисциплине "Основы алгоритмизации и программирования"' },
-          { id: 2, name: 'Основы алгоритмизации и программирования' },
-        ],
-        groups: [
-          { id: 1, name: 'Б9123-01.03.02сп' },
-          { id: 2, name: 'Б9123-01.03.02ии' },
-          { id: 3, name: 'Б9123-02.03.01сцт' },
-          { id: 4, name: 'Б9123-09.03.03пикд' },
-        ],
+        subjects: [],
+        loading: false,
+        error: null
       };
     },
     setup() {
       const pageStore = usePageStore();
       return { pageStore };
     },
+    created() {
+      this.fetchTeacherSubjects();
+    },
     methods: {
+      async fetchTeacherSubjects() {
+        this.loading = true;
+        this.error = null;
+        try {
+          const response = await api.get('/api/teacher/subjects/');
+          this.subjects = response.data;
+        } catch (error) {
+          console.error('Ошибка при загрузке предметов:', error);
+          this.error = 'Не удалось загрузить список предметов';
+        } finally {
+          this.loading = false;
+        }
+      },
       showGroups(subject) {
-        this.pageStore.setSubject(subject, this.groups);
+        // Дальше добавить логику запроса из API групп для предмета
+        const mockGroups = [
+          { id: 1, name: 'Б9123-01.03.02сп' },
+          { id: 2, name: 'Б9123-01.03.02ии' },
+          { id: 3, name: 'Б9123-02.03.01сцт' },
+          { id: 4, name: 'Б9123-09.03.03пикд' },
+        ];
+        this.pageStore.setSubject(subject, mockGroups);
       },
       addSubject() {
         // Логика для добавления нового предмета
