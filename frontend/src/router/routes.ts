@@ -49,6 +49,27 @@ const routes = [
     ]
   },
   {
+    path: '/',
+    component: () => import('layouts/AppLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        redirect: '/login'
+      },
+      {
+        path: 'student-grades',
+        name: 'student-grades',
+        component: () => import('pages/StudentGradesPage.vue')
+      },
+      {
+        path: 'teacher-grades',
+        name: 'teacher-grades',
+        component: () => import('pages/TeacherGradesPage.vue')
+      },
+    ]
+  },
+  {
     path: '/:catchAll(.*)*',
     component: () => import('pages/Error404.vue')
   }
