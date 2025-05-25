@@ -7,6 +7,7 @@ from .views import (
     GroupDetailAPI,
     CurrentUserAPI,
     TeacherSubjectsAPI,
+    StudentSubjectsAPI,
 )
 
 urlpatterns = [
@@ -18,4 +19,5 @@ urlpatterns = [
     path('api/users/<int:pk>/', UserListAPI.as_view(), name='user-detail'),
     path('api/current-user/', CurrentUserAPI.as_view(), name='current-user'),
     path('api/teacher/subjects/', TeacherSubjectsAPI.as_view(), name='teacher-subjects'),
+    path('api/student/subjects/', StudentSubjectsAPI.as_view(), name='student-subjects'),
 ]

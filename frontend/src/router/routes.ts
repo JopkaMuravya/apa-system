@@ -45,6 +45,12 @@ const routes = [
         path: 'no-role',
         name: 'no-role',
         component: () => import('pages/NoRolePage.vue')
+      },
+      {
+        path: 'student/subject/:id',
+        name: 'student-subject-detail',
+        component: () => import('pages/StudentSubjectDetail.vue'),
+        props: true
       }
     ]
   },
