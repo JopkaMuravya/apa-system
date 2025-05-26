@@ -125,6 +125,31 @@ class TeacherSubject(models.Model):
 
     def __str__(self):
         return f"{self.teacher} преподает {self.subject}"
+    
+
+class GroupSubjectTeacher(models.Model):
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='teaching_assignments'
+    )
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name='group_teaching_assignments'
+    )
+    teacher = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'teacher'},
+        related_name='teaching_subjects'
+    )
+
+    class Meta:
+        unique_together = ('group', 'subject')  
+
+    def __str__(self):
+        return f"{self.teacher} ведёт {self.subject} у {self.group}"
 
 
 class Lesson(models.Model):
