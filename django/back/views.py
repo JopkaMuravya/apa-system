@@ -108,23 +108,20 @@ class CurrentUserAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # Проверка роли пользователя
-        if request.user.role != 'student':
-            return Response({'detail': 'Доступ запрещен'}, status=403)
-
         serializer = UserSerializer(request.user)
         data = serializer.data
-        # Получаем группу студента
-        student_group = StudentGroup.objects.filter(student=request.user).select_related('group').first()
-        if student_group:
-            data['group'] = {
-                'id': student_group.group.id,
-                'name': student_group.group.name
-            }
+        if request.user.role == 'student':
+            student_group = StudentGroup.objects.filter(student=request.user).select_related('group').first()
+            if student_group:
+                data['group'] = {
+                    'id': student_group.group.id,
+                    'name': student_group.group.name
+                }
+            else:
+                data['group'] = None
         else:
             data['group'] = None
         return Response(data)
-
 
 
 class TeacherSubjectsAPI(APIView):
@@ -137,14 +134,21 @@ class TeacherSubjectsAPI(APIView):
         serializer = SubjectSerializer(subjects, many=True)
 
         return Response(serializer.data)
+
+
 class StudentSubjectsAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # Получаем группу, в которых состоит студент
-        student_groups = StudentGroup.objects.filter(student=request.user).values_list('group', flat=True)
-        # Получаем предметы, связанные с этими группами
-        subjects = Subject.objects.filter(subject_groups__group__in=student_groups).distinct()
+        try:
+            # Проверка роли пользователя
+            if request.user.role != 'student':
+                return Response({'detail': 'Доступ запрещен'}, status=403)
 
-        serializer = SubjectSerializer(subjects, many=True)
-        return Response(serializer.data)
+            student_groups = StudentGroup.objects.filter(student=request.user).values_list('group', flat=True)
+            subjects = Subject.objects.filter(subject_groups__group__in=student_groups).distinct()
+
+            serializer = SubjectSerializer(subjects, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=500)
