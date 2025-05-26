@@ -44,6 +44,17 @@
         </tbody>
       </table>
 
+      <button class="add-student-button" @click="showAddModal = true">
+        Добавить студента
+      </button>
+
+      <AddStudentModal
+        v-if="showAddModal"
+        :group-id="String(groupId)"
+        @close="showAddModal = false"
+        @student-added="fetchGroupData"
+      />
+
       <div v-if="showErrorModal" class="modal-backdrop">
         <div class="error-modal">
           <h2>Ошибка</h2>
@@ -72,6 +83,7 @@ import { useRoute } from 'vue-router'
 import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
 
+import AddStudentModal from './AddStudentModal.vue'
 import DeleteIcon from '../assets/icons/delete.png'
 import EditIcon from '../assets/icons/edit.png'
 import AcceptIcon from '../assets/icons/accept.png'
@@ -85,14 +97,14 @@ interface Student {
 
 export default defineComponent({
   name: 'GroupStudents',
+  components: { AddStudentModal },
   setup() {
+    const showAddModal = ref(false)
     const route = useRoute()
     const groupId = route.params.id
-
     const students = ref<Student[]>([])
     const loading = ref(true)
     const error = ref('')
-
     const editingStudentId = ref<number | null>(null)
     const editForm = ref({ id: 0, full_name: '', email: '' })
     const showErrorModal = ref(false)
@@ -211,6 +223,7 @@ export default defineComponent({
     onMounted(fetchGroupData)
 
     return {
+      groupId,
       students,
       sortedStudents,
       loading,
@@ -230,7 +243,9 @@ export default defineComponent({
       DeleteIcon,
       EditIcon,
       AcceptIcon,
-      CancelIcon
+      CancelIcon,
+      showAddModal,
+      fetchGroupData
     }
   }
 })
@@ -362,4 +377,22 @@ input {
 .error-modal button:hover {
   background-color: #527cbf;
 }
+
+.add-student-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #6995d0;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  float: right;
+}
+
+.add-student-button:hover {
+  background-color: #527cbf;
+}
+
 </style>

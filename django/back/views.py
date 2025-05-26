@@ -116,3 +116,27 @@ class GroupDetailAPI(APIView):
             return Response({'success': True}, status=status.HTTP_204_NO_CONTENT)
         except StudentGroup.DoesNotExist:
             return Response({'detail': 'Такой студент не состоит в группе'}, status=status.HTTP_404_NOT_FOUND)
+        
+    def post(self, request, pk):
+        student_id = request.data.get('student_id')
+
+        if not student_id:
+            return Response({'detail': 'student_id обязателен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            group = Group.objects.get(pk=pk)
+            student = User.objects.get(pk=student_id, role='student')
+        except Group.DoesNotExist:
+            return Response({'detail': 'Группа не найдена'}, status=status.HTTP_404_NOT_FOUND)
+        except User.DoesNotExist:
+            return Response({'detail': 'Студент не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        if StudentGroup.objects.filter(group=group, student=student).exists():
+            return Response({'detail': 'Студент уже состоит в этой группе'}, status=status.HTTP_400_BAD_REQUEST)
+
+        StudentGroup.objects.filter(student=student).delete()
+
+        StudentGroup.objects.create(student=student, group=group)
+
+        return Response({'success': True}, status=status.HTTP_201_CREATED)
+

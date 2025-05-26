@@ -5,6 +5,7 @@ from .models import User, Group, Subject, StudentGroup
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     full_name = serializers.SerializerMethodField()
+    group_name = serializers.SerializerMethodField() 
     email = serializers.EmailField(required=True)
 
     first_name = serializers.CharField(required=False, allow_blank=True)
@@ -14,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'email', 'first_name', 'last_name', 'middle_name',
-            'password', 'role', 'is_superuser', 'full_name',
+            'password', 'role', 'is_superuser', 'full_name', 'group_name',
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -23,6 +24,10 @@ class UserSerializer(serializers.ModelSerializer):
     def get_full_name(self, obj):
         parts = filter(None, [obj.last_name, obj.first_name, obj.middle_name])
         return ' '.join(parts)
+
+    def get_group_name(self, obj): 
+        group_relation = obj.student_groups.first()
+        return group_relation.group.name if group_relation else None
 
     def create(self, validated_data):
         return User.objects.create_user(
