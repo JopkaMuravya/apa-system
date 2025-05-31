@@ -88,12 +88,7 @@ class GroupDetailSerializer(serializers.ModelSerializer):
         ]
 
 
-<<<<<<< HEAD
-class SubjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Subject
-        fields = ['id', 'name']
-=======
+
 class GroupSubjectTeacherSerializer(serializers.ModelSerializer):
     group_name = serializers.CharField(source='group.name', read_only=True)
     subject_name = serializers.CharField(source='subject.name', read_only=True)
@@ -120,5 +115,3 @@ class SubjectWithTeachersSerializer(serializers.ModelSerializer):
             f"{link.teacher.last_name} {link.teacher.first_name} {link.teacher.middle_name or ''}".strip()
             for link in links
         ]
-
->>>>>>> origin/Nania

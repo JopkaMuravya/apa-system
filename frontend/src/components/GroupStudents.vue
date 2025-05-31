@@ -264,15 +264,27 @@ export default defineComponent({
 .students-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
-.students-table th,
-.students-table td {
-  padding: 10px;
-  border: 1px solid #ccc;
+.students-table th {
+  background: #6995D0;
+  color: white;
+  padding: 12px 15px;
   text-align: left;
-  vertical-align: middle;
+  font-weight: bold;
+  position: relative;
+  border: none;
+}
+
+.students-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.students-table tr:hover {
+  background-color: rgba(105, 149, 208, 0.1);
 }
 
 th.action-header,
@@ -328,8 +340,10 @@ img {
 
 input {
   width: 100%;
-  padding: 5px;
+  padding: 8px;
   font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .modal-backdrop {

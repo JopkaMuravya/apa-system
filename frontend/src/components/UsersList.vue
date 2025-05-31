@@ -277,6 +277,8 @@ export default defineComponent({
 .role-filter {
   font-size: 14px;
   padding: 4px 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 table {
@@ -285,11 +287,23 @@ table {
   margin-top: 10px;
 }
 
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
+th {
+  background: #6995D0;
+  color: white;
+  padding: 12px 15px;
   text-align: left;
-  vertical-align: middle;
+  font-weight: bold;
+  position: relative;
+}
+
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+tr:hover {
+  background-color: rgba(105, 149, 208, 0.1);
 }
 
 th.action-header,
@@ -360,8 +374,10 @@ img {
 
 input, select {
   width: 100%;
-  padding: 5px;
+  padding: 8px;
   font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .loader {

@@ -4,13 +4,9 @@ from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, get_user_model
 
-<<<<<<< HEAD
-from .models import Group, GroupSubject, StudentGroup, TeacherSubject
-from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, SubjectSerializer
-=======
+
 from .models import Group, Subject, StudentGroup, GroupSubjectTeacher
 from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, GroupSubjectTeacherSerializer
->>>>>>> origin/Nania
 from .permissions import IsModerator  
 
 User = get_user_model()
@@ -108,27 +104,6 @@ class GroupDetailAPI(APIView):
         serializer = GroupDetailSerializer(group)
         return Response(serializer.data)
 
-<<<<<<< HEAD
-
-class CurrentUserAPI(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
-
-
-class TeacherSubjectsAPI(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        teacher_subjects = TeacherSubject.objects.filter(teacher=request.user).select_related('subject')
-        subjects = [ts.subject for ts in teacher_subjects]
-
-        serializer = SubjectSerializer(subjects, many=True)
-
-        return Response(serializer.data)
-=======
     def delete(self, request, pk):
         student_id = request.query_params.get('student_id')
 
@@ -220,4 +195,4 @@ class GroupSubjectTeacherAPI(APIView):
             return Response({'success': True}, status=status.HTTP_204_NO_CONTENT)
         except GroupSubjectTeacher.DoesNotExist:
             return Response({'detail': 'Назначение не найдено'}, status=status.HTTP_404_NOT_FOUND)
->>>>>>> origin/Nania
+
