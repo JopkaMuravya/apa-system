@@ -111,7 +111,9 @@ class SubjectWithTeachersSerializer(serializers.ModelSerializer):
     def get_teachers(self, subject):
         links = subject.subject_teachers.select_related('teacher')
         return [
-            f"{link.teacher.last_name} {link.teacher.first_name} {link.teacher.middle_name or ''}".strip()
+            {
+                'id': link.teacher.id,
+                'full_name': f"{link.teacher.last_name} {link.teacher.first_name} {link.teacher.middle_name or ''}".strip()
+            }
             for link in links
         ]
-

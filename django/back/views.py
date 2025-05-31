@@ -158,6 +158,36 @@ class SubjectListWithTeachersAPI(APIView):
         except Subject.DoesNotExist:
             return Response({'detail': 'Предмет не найден'}, status=status.HTTP_404_NOT_FOUND)
 
+    def put(self, request, pk=None):
+        name = request.data.get('name', '').strip()
+        teacher_ids = request.data.get('teacher_ids', [])
+
+        if not name:
+            return Response({'detail': 'Название предмета обязательно'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            subject = Subject.objects.get(pk=pk)
+        except Subject.DoesNotExist:
+            return Response({'detail': 'Предмет не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        if Subject.objects.exclude(pk=pk).filter(name__iexact=name).exists():
+            return Response({'detail': 'Предмет с таким названием уже существует'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not isinstance(teacher_ids, list):
+            return Response({'detail': 'teacher_ids должен быть списком'}, status=status.HTTP_400_BAD_REQUEST)
+
+        subject.name = name
+        subject.save()
+
+        from .models import TeacherSubject
+        TeacherSubject.objects.filter(subject=subject).delete()
+
+        teachers = User.objects.filter(id__in=teacher_ids, role='teacher')
+        for teacher in teachers:
+            TeacherSubject.objects.create(subject=subject, teacher=teacher)
+
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
 
 class GroupSubjectTeacherAPI(APIView):
     permission_classes = [IsModerator]

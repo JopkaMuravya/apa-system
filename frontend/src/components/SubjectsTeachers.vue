@@ -18,12 +18,12 @@
               <td>
                 <ul class="teacher-list">
                   <li v-for="(teacher, index) in subject.teachers" :key="index">
-                    {{ teacher }}
+                    {{ teacher.full_name }}
                   </li>
                 </ul>
               </td>
               <td class="action-buttons">
-                <button class="edit-button">
+                <button class="edit-button" @click="openEditModal(subject)">
                   <img :src="EditIcon" alt="Редактировать" />
                 </button>
                 <button class="delete-button" @click="openDeleteModal(subject)">
@@ -37,7 +37,21 @@
         <button class="add-subject-button" @click="showAddModal = true">
           Добавить предмет
         </button>
-        <AddSubjectModal v-if="showAddModal" @close="showAddModal = false" @subject-added="fetchSubjects" />
+
+        <AddSubjectModal
+          v-if="showAddModal"
+          @close="showAddModal = false"
+          @subject-added="fetchSubjects"
+        />
+
+        <EditSubjectModal
+          v-if="showEditModal && subjectToEdit"
+          :subject-id="subjectToEdit.id"
+          :initial-name="subjectToEdit.name"
+          :initial-teachers="subjectToEdit.teachers.map(t => t.id)"
+          @close="closeEditModal"
+          @subject-updated="fetchSubjects"
+        />
 
         <div v-if="showDeleteModal" class="modal-backdrop">
           <div class="error-modal">
@@ -63,27 +77,31 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, computed } from 'vue'
+import { defineComponent, ref, computed, onMounted } from 'vue'
 import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
+import AddSubjectModal from './AddSubjectModal.vue'
+import EditSubjectModal from './EditSubjectModal.vue'
 import EditIcon from '../assets/icons/edit.png'
 import DeleteIcon from '../assets/icons/delete.png'
-import AddSubjectModal from './AddSubjectModal.vue'
 
 interface Subject {
   id: number
   name: string
-  teachers: string[]
+  teachers: { id: number; full_name: string }[]
 }
 
 export default defineComponent({
   name: 'SubjectsTeachers',
-  components: { AddSubjectModal },
+  components: { AddSubjectModal, EditSubjectModal },
   setup() {
     const subjects = ref<Subject[]>([])
     const loading = ref(true)
     const error = ref('')
     const showAddModal = ref(false)
+
+    const showEditModal = ref(false)
+    const subjectToEdit = ref<Subject | null>(null)
 
     const showDeleteModal = ref(false)
     const subjectToDelete = ref<Subject | null>(null)
@@ -119,7 +137,6 @@ export default defineComponent({
 
     const confirmDelete = async () => {
       if (!subjectToDelete.value) return
-
       try {
         await api.delete(`/api/subjects/${subjectToDelete.value.id}/`)
         fetchSubjects()
@@ -132,6 +149,23 @@ export default defineComponent({
       }
     }
 
+    const openEditModal = (subject: Subject) => {
+      subjectToEdit.value = subject
+      showEditModal.value = true
+    }
+
+    const closeEditModal = () => {
+      subjectToEdit.value = null
+      showEditModal.value = false
+    }
+
+    const getTeacherIds = (subject: Subject): number[] => {
+      const teacherMap = new Map(subjects.value.flatMap(s => 
+        s.teachers.map((t, i) => [t, i + 1])
+      ))
+      return subject.teachers.map(name => teacherMap.get(name)).filter(Boolean) as number[]
+    }
+
     onMounted(fetchSubjects)
 
     return {
@@ -140,6 +174,8 @@ export default defineComponent({
       loading,
       error,
       showAddModal,
+      showEditModal,
+      subjectToEdit,
       EditIcon,
       DeleteIcon,
       fetchSubjects,
@@ -148,8 +184,11 @@ export default defineComponent({
       openDeleteModal,
       cancelDelete,
       confirmDelete,
+      openEditModal,
+      closeEditModal,
       showErrorModal,
-      modalErrorMessage
+      modalErrorMessage,
+      getTeacherIds
     }
   }
 })
