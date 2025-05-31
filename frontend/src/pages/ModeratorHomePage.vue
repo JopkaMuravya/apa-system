@@ -12,7 +12,7 @@
             :class="{ active: currentTab === 'users' }"
             @click="currentTab = 'users'"
           >
-            Пользователи
+            Все пользователи
           </button>
           <button
             :class="{ active: currentTab === 'groups' }"
@@ -20,11 +20,18 @@
           >
             Учебные группы
           </button>
+          <button
+            :class="{ active: currentTab === 'subjects' }"
+            @click="currentTab = 'subjects'"
+          >
+            Предметы и преподаватели
+          </button>
         </div>
 
         <div class="tab-content">
           <UsersList v-if="currentTab === 'users'" />
-          <GroupsList v-else />
+          <GroupsList v-else-if="currentTab === 'groups'" />
+          <SubjectsTeachers v-else />
         </div>
       </div>
     </div>
@@ -37,6 +44,7 @@ import SideBar from '../components/SideBar.vue'
 import TopBar from '../components/TopBar.vue'
 import UsersList from '../components/UsersList.vue'
 import GroupsList from '../components/GroupsList.vue'
+import SubjectsTeachers from '../components/SubjectsTeachers.vue'
 
 export default defineComponent({
   name: 'ModeratorHomePage',
@@ -44,10 +52,11 @@ export default defineComponent({
     SideBar,
     TopBar,
     UsersList,
-    GroupsList
+    GroupsList,
+    SubjectsTeachers
   },
   setup() {
-    const currentTab = ref<'users' | 'groups'>('users')
+    const currentTab = ref<'users' | 'groups' | 'subjects'>('users')
     return { currentTab }
   }
 })

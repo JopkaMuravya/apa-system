@@ -4,8 +4,13 @@ from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, get_user_model
 
+<<<<<<< HEAD
 from .models import Group, GroupSubject, StudentGroup, TeacherSubject
 from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, SubjectSerializer
+=======
+from .models import Group, Subject, StudentGroup, GroupSubjectTeacher
+from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, GroupSubjectTeacherSerializer
+>>>>>>> origin/Nania
 from .permissions import IsModerator  
 
 User = get_user_model()
@@ -103,6 +108,7 @@ class GroupDetailAPI(APIView):
         serializer = GroupDetailSerializer(group)
         return Response(serializer.data)
 
+<<<<<<< HEAD
 
 class CurrentUserAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -122,3 +128,96 @@ class TeacherSubjectsAPI(APIView):
         serializer = SubjectSerializer(subjects, many=True)
 
         return Response(serializer.data)
+=======
+    def delete(self, request, pk):
+        student_id = request.query_params.get('student_id')
+
+        if not student_id:
+            return Response({'detail': 'student_id обязателен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            student_group = StudentGroup.objects.get(group_id=pk, student_id=student_id)
+            student_group.delete()
+            return Response({'success': True}, status=status.HTTP_204_NO_CONTENT)
+        except StudentGroup.DoesNotExist:
+            return Response({'detail': 'Такой студент не состоит в группе'}, status=status.HTTP_404_NOT_FOUND)
+        
+    def post(self, request, pk):
+        student_id = request.data.get('student_id')
+
+        if not student_id:
+            return Response({'detail': 'student_id обязателен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            group = Group.objects.get(pk=pk)
+            student = User.objects.get(pk=student_id, role='student')
+        except Group.DoesNotExist:
+            return Response({'detail': 'Группа не найдена'}, status=status.HTTP_404_NOT_FOUND)
+        except User.DoesNotExist:
+            return Response({'detail': 'Студент не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        if StudentGroup.objects.filter(group=group, student=student).exists():
+            return Response({'detail': 'Студент уже состоит в этой группе'}, status=status.HTTP_400_BAD_REQUEST)
+
+        StudentGroup.objects.filter(student=student).delete()
+
+        StudentGroup.objects.create(student=student, group=group)
+
+        return Response({'success': True}, status=status.HTTP_201_CREATED)
+
+
+class SubjectListWithTeachersAPI(APIView):
+    permission_classes = [IsModerator]
+
+    def get(self, request):
+        subjects = Subject.objects.all().order_by('name')
+        from .serializers import SubjectWithTeachersSerializer
+        serializer = SubjectWithTeachersSerializer(subjects, many=True)
+        return Response(serializer.data)
+
+
+class GroupSubjectTeacherAPI(APIView):
+    permission_classes = [IsModerator]
+
+    def get(self, request, group_id):
+        entries = GroupSubjectTeacher.objects.filter(group_id=group_id)
+        serializer = GroupSubjectTeacherSerializer(entries, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, group_id):
+        subject_id = request.data.get('subject_id')
+        teacher_id = request.data.get('teacher_id')
+
+        if not subject_id or not teacher_id:
+            return Response({'detail': 'subject_id и teacher_id обязательны'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            group = Group.objects.get(id=group_id)
+            subject = Subject.objects.get(id=subject_id)
+            teacher = User.objects.get(id=teacher_id, role='teacher')
+        except Group.DoesNotExist:
+            return Response({'detail': 'Группа не найдена'}, status=status.HTTP_404_NOT_FOUND)
+        except Subject.DoesNotExist:
+            return Response({'detail': 'Предмет не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except User.DoesNotExist:
+            return Response({'detail': 'Преподаватель не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        if GroupSubjectTeacher.objects.filter(group=group, subject=subject).exists():
+            return Response({'detail': 'Для этой группы и предмета уже назначен преподаватель'}, status=status.HTTP_400_BAD_REQUEST)
+
+        GroupSubjectTeacher.objects.create(group=group, subject=subject, teacher=teacher)
+        return Response({'success': True}, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, group_id):
+        subject_id = request.query_params.get('subject_id')
+
+        if not subject_id:
+            return Response({'detail': 'subject_id обязателен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            assignment = GroupSubjectTeacher.objects.get(group_id=group_id, subject_id=subject_id)
+            assignment.delete()
+            return Response({'success': True}, status=status.HTTP_204_NO_CONTENT)
+        except GroupSubjectTeacher.DoesNotExist:
+            return Response({'detail': 'Назначение не найдено'}, status=status.HTTP_404_NOT_FOUND)
+>>>>>>> origin/Nania
