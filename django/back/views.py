@@ -4,7 +4,7 @@ from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, get_user_model
 
-from .models import Group, Subject, StudentGroup, GroupSubjectTeacher
+from .models import Group, Subject, StudentGroup, GroupSubjectTeacher, TeacherSubject
 from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, GroupSubjectTeacherSerializer
 from .permissions import IsModerator  
 
@@ -195,3 +195,29 @@ class GroupSubjectTeacherAPI(APIView):
             return Response({'success': True}, status=status.HTTP_204_NO_CONTENT)
         except GroupSubjectTeacher.DoesNotExist:
             return Response({'detail': 'Назначение не найдено'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SubjectCreateWithTeachersAPI(APIView):
+    permission_classes = [IsModerator]
+
+    def post(self, request):
+        name = request.data.get('name')
+        teacher_ids = request.data.get('teacher_ids', [])
+
+        if not name or not name.strip():
+            return Response({'detail': 'Название предмета обязательно'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if Subject.objects.filter(name__iexact=name.strip()).exists():
+            return Response({'detail': 'Предмет с таким названием уже существует'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not isinstance(teacher_ids, list):
+            return Response({'detail': 'teacher_ids должен быть списком'}, status=status.HTTP_400_BAD_REQUEST)
+
+        subject = Subject.objects.create(name=name.strip())
+
+        teachers = User.objects.filter(id__in=teacher_ids, role='teacher')
+        for teacher in teachers:
+            from .models import TeacherSubject
+            TeacherSubject.objects.create(subject=subject, teacher=teacher)
+
+        return Response({'success': True, 'subject_id': subject.id}, status=status.HTTP_201_CREATED)

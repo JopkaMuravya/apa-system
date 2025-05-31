@@ -34,7 +34,10 @@
           </tbody>
         </table>
 
-        <button class="add-subject-button">Добавить предмет</button>
+        <button class="add-subject-button" @click="showAddModal = true">
+          Добавить предмет
+        </button>
+        <AddSubjectModal v-if="showAddModal" @close="showAddModal = false" @subject-added="fetchSubjects" />
       </div>
     </div>
   </div>
@@ -46,6 +49,7 @@ import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
 import EditIcon from '../assets/icons/edit.png'
 import DeleteIcon from '../assets/icons/delete.png'
+import AddSubjectModal from './AddSubjectModal.vue'
 
 interface Subject {
   id: number
@@ -55,10 +59,12 @@ interface Subject {
 
 export default defineComponent({
   name: 'SubjectsTeachers',
+  components: { AddSubjectModal },
   setup() {
     const subjects = ref<Subject[]>([])
     const loading = ref(true)
     const error = ref('')
+    const showAddModal = ref(false)
 
     const fetchSubjects = async () => {
       try {
@@ -83,8 +89,10 @@ export default defineComponent({
       sortedSubjects,
       loading,
       error,
+      showAddModal,
       EditIcon,
-      DeleteIcon
+      DeleteIcon,
+      fetchSubjects
     }
   }
 })
