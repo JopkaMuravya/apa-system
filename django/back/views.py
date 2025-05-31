@@ -150,6 +150,14 @@ class SubjectListWithTeachersAPI(APIView):
         serializer = SubjectWithTeachersSerializer(subjects, many=True)
         return Response(serializer.data)
 
+    def delete(self, request, pk=None):
+        try:
+            subject = Subject.objects.get(pk=pk)
+            subject.delete()
+            return Response({'success': True}, status=status.HTTP_204_NO_CONTENT)
+        except Subject.DoesNotExist:
+            return Response({'detail': 'Предмет не найден'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class GroupSubjectTeacherAPI(APIView):
     permission_classes = [IsModerator]

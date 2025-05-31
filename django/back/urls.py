@@ -20,4 +20,5 @@ urlpatterns = [
     path('api/groups/<int:group_id>/subject_teachers/', GroupSubjectTeacherAPI.as_view(), name='group-subject-teacher'),
     path('api/subjects/', SubjectListWithTeachersAPI.as_view(), name='subject-list-with-teachers'),
     path('api/subjects/create_with_teachers/', SubjectCreateWithTeachersAPI.as_view(), name='subject-create-with-teachers'),
+    path('api/subjects/<int:pk>/', SubjectListWithTeachersAPI.as_view()),
 ]

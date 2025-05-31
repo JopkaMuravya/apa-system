@@ -26,7 +26,7 @@
                 <button class="edit-button">
                   <img :src="EditIcon" alt="Редактировать" />
                 </button>
-                <button class="delete-button">
+                <button class="delete-button" @click="openDeleteModal(subject)">
                   <img :src="DeleteIcon" alt="Удалить" />
                 </button>
               </td>
@@ -38,6 +38,25 @@
           Добавить предмет
         </button>
         <AddSubjectModal v-if="showAddModal" @close="showAddModal = false" @subject-added="fetchSubjects" />
+
+        <div v-if="showDeleteModal" class="modal-backdrop">
+          <div class="error-modal">
+            <h2>Подтверждение</h2>
+            <p>Удалить предмет "{{ subjectToDelete?.name }}"?</p>
+            <div class="modal-actions">
+              <button @click="confirmDelete">Да</button>
+              <button @click="cancelDelete">Нет</button>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="showErrorModal" class="modal-backdrop">
+          <div class="error-modal">
+            <h2>Ошибка</h2>
+            <p>{{ modalErrorMessage }}</p>
+            <button @click="showErrorModal = false">Закрыть</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -66,6 +85,12 @@ export default defineComponent({
     const error = ref('')
     const showAddModal = ref(false)
 
+    const showDeleteModal = ref(false)
+    const subjectToDelete = ref<Subject | null>(null)
+
+    const showErrorModal = ref(false)
+    const modalErrorMessage = ref('')
+
     const fetchSubjects = async () => {
       try {
         const response = await api.get('/api/subjects/')
@@ -82,6 +107,31 @@ export default defineComponent({
       [...subjects.value].sort((a, b) => a.name.localeCompare(b.name))
     )
 
+    const openDeleteModal = (subject: Subject) => {
+      subjectToDelete.value = subject
+      showDeleteModal.value = true
+    }
+
+    const cancelDelete = () => {
+      showDeleteModal.value = false
+      subjectToDelete.value = null
+    }
+
+    const confirmDelete = async () => {
+      if (!subjectToDelete.value) return
+
+      try {
+        await api.delete(`/api/subjects/${subjectToDelete.value.id}/`)
+        fetchSubjects()
+      } catch (err) {
+        showErrorModal.value = true
+        modalErrorMessage.value = 'Не удалось удалить предмет'
+      } finally {
+        showDeleteModal.value = false
+        subjectToDelete.value = null
+      }
+    }
+
     onMounted(fetchSubjects)
 
     return {
@@ -92,7 +142,14 @@ export default defineComponent({
       showAddModal,
       EditIcon,
       DeleteIcon,
-      fetchSubjects
+      fetchSubjects,
+      showDeleteModal,
+      subjectToDelete,
+      openDeleteModal,
+      cancelDelete,
+      confirmDelete,
+      showErrorModal,
+      modalErrorMessage
     }
   }
 })
@@ -186,5 +243,60 @@ img {
 .error {
   color: red;
   margin-top: 10px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.error-modal {
+  background: white;
+  padding: 25px 30px;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 280px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.error-modal h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.error-modal p {
+  margin: 0 0 15px;
+  font-size: 15px;
+  color: #333;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.modal-actions button,
+.error-modal button {
+  background-color: #6995d0;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal-actions button:hover,
+.error-modal button:hover {
+  background-color: #527cbf;
 }
 </style>
