@@ -5,18 +5,12 @@
         <img class="subject-icon" :src="SubjectIcon" alt="Subject" />
         <p class="subject">{{ subject.name }}</p>
       </button>
-      <button class="new-subject-button" @click="subject" @mouseover="hoverAdd" @mouseleave="unhoverAdd">
-        <img :src="currentAddIcon" alt="Новый предмет" />
-      </button>
     </div>
     <div v-else class="subjects-container">
       <!--<h2>Группы для {{ currentSubject.name }}</h2>-->
       <div v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info">
         <p class="subject">{{ group.name }}</p>
       </div>
-      <button class="new-group-button" @click="subject" @mouseover="hoverAdd" @mouseleave="unhoverAdd">
-        <img :src="currentAddIcon" alt="Новая группа" />
-      </button>
     </div>
 </aside>
 </template>
@@ -61,15 +55,18 @@
           this.loading = false;
         }
       },
-      showGroups(subject) {
-        // Дальше добавить логику запроса из API групп для предмета
-        const mockGroups = [
-          { id: 1, name: 'Б9123-01.03.02сп' },
-          { id: 2, name: 'Б9123-01.03.02ии' },
-          { id: 3, name: 'Б9123-02.03.01сцт' },
-          { id: 4, name: 'Б9123-09.03.03пикд' },
-        ];
-        this.pageStore.setSubject(subject, mockGroups);
+      async showGroups(subject) {
+        this.loading = true;
+        this.error = null;
+        try {
+          const response = await api.get(`/api/teacher/subjects/${subject.id}/groups/`);
+          this.pageStore.setSubject(subject, response.data);
+        } catch (error) {
+          console.error('Ошибка при загрузке групп:', error);
+          this.error = 'Не удалось загрузить список групп';
+        } finally {
+          this.loading = false;
+        }
       },
       addSubject() {
         // Логика для добавления нового предмета

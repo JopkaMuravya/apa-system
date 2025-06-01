@@ -6,27 +6,25 @@
         <TopBar />
       </div>
 
-      <div class="inner-content group-detail">
-        <div v-if="loading">Загрузка данных...</div>
-        <div v-else-if="error" class="error">{{ error }}</div>
-        <div v-else>
-          <h3>Студенты</h3>
-          <table class="students-table">
-            <thead>
-              <tr>
-                <th>№</th>
-                <th>ФИО</th>
-                <th>Корпоративная почта</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(student, index) in sortedStudents" :key="student.id">
-                <td>{{ index + 1 }}</td>
-                <td>{{ student.full_name }}</td>
-                <td>{{ student.email }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="inner-content">
+        <div class="tab-switcher">
+          <button
+            :class="{ active: currentTab === 'students' }"
+            @click="currentTab = 'students'"
+          >
+            Студенты
+          </button>
+          <button
+            :class="{ active: currentTab === 'subjects' }"
+            @click="currentTab = 'subjects'"
+          >
+            Предметы
+          </button>
+        </div>
+
+        <div class="tab-content">
+          <GroupStudents v-if="currentTab === 'students'" />
+          <GroupSubjects v-else />
         </div>
       </div>
     </div>
@@ -34,56 +32,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { api } from 'boot/axios'
-import type { AxiosError } from 'axios'
-
 import SideBar from '../components/SideBar.vue'
 import TopBar from '../components/TopBar.vue'
-
-interface Student {
-  id: number
-  full_name: string
-  email: string
-}
+import GroupStudents from '../components/GroupStudents.vue'
+import GroupSubjects from '../components/GroupSubjects.vue'
 
 export default defineComponent({
   name: 'GroupDetailPage',
   components: {
     SideBar,
-    TopBar
+    TopBar,
+    GroupStudents,
+    GroupSubjects
   },
   setup() {
-    const route = useRoute()
-    const students = ref<Student[]>([])
-    const loading = ref(true)
-    const error = ref('')
-
-    const fetchGroupData = async () => {
-      try {
-        const { data } = await api.get(`/api/groups/${route.params.id}/`)
-        students.value = data.students
-      } catch (err: unknown) {
-        const e = err as AxiosError<{ detail?: string }>
-        error.value = e.response?.data?.detail || 'Ошибка при загрузке данных группы'
-      } finally {
-        loading.value = false
-      }
-    }
-
-    const sortedStudents = computed(() =>
-      [...students.value].sort((a, b) => a.full_name.localeCompare(b.full_name))
-    )
-
-    onMounted(fetchGroupData)
-
-    return {
-      students,
-      sortedStudents,
-      loading,
-      error
-    }
+    const currentTab = ref<'students' | 'subjects'>('students')
+    useRoute()
+    return { currentTab }
   }
 })
 </script>
@@ -118,25 +85,29 @@ export default defineComponent({
   overflow-y: auto;
 }
 
-.group-detail h3 {
-  margin-bottom: 15px;
+.tab-switcher {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.error {
-  color: red;
+.tab-switcher button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #e0eafc;
+  color: #335d92;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.tab-switcher button.active {
+  background-color: #6995d0;
+  color: white;
+}
+
+.tab-content {
   margin-top: 10px;
-}
-
-.students-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.students-table th,
-.students-table td {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  text-align: left;
 }
 </style>

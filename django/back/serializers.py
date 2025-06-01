@@ -1,10 +1,11 @@
 from rest_framework import serializers
-from .models import User, Group, Subject, StudentGroup
+from .models import User, Group, Subject, StudentGroup, GroupSubjectTeacher
 
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     full_name = serializers.SerializerMethodField()
+    group_name = serializers.SerializerMethodField() 
     email = serializers.EmailField(required=True)
 
     first_name = serializers.CharField(required=False, allow_blank=True)
@@ -14,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'email', 'first_name', 'last_name', 'middle_name',
-            'password', 'role', 'is_superuser', 'full_name',
+            'password', 'role', 'is_superuser', 'full_name', 'group_name',
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -23,6 +24,10 @@ class UserSerializer(serializers.ModelSerializer):
     def get_full_name(self, obj):
         parts = filter(None, [obj.last_name, obj.first_name, obj.middle_name])
         return ' '.join(parts)
+
+    def get_group_name(self, obj): 
+        group_relation = obj.student_groups.first()
+        return group_relation.group.name if group_relation else None
 
     def create(self, validated_data):
         return User.objects.create_user(
@@ -87,3 +92,34 @@ class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = ['id', 'name']
+
+        
+class GroupSubjectTeacherSerializer(serializers.ModelSerializer):
+    group_name = serializers.CharField(source='group.name', read_only=True)
+    subject_name = serializers.CharField(source='subject.name', read_only=True)
+    teacher_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GroupSubjectTeacher
+        fields = ['id', 'group', 'group_name', 'subject', 'subject_name', 'teacher', 'teacher_name']
+
+    def get_teacher_name(self, obj):
+        return f"{obj.teacher.last_name} {obj.teacher.first_name} {obj.teacher.middle_name or ''}".strip()
+
+
+class SubjectWithTeachersSerializer(serializers.ModelSerializer):
+    teachers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Subject
+        fields = ['id', 'name', 'teachers']
+
+    def get_teachers(self, subject):
+        links = subject.subject_teachers.select_related('teacher')
+        return [
+            {
+                'id': link.teacher.id,
+                'full_name': f"{link.teacher.last_name} {link.teacher.first_name} {link.teacher.middle_name or ''}".strip()
+            }
+            for link in links
+        ]

@@ -13,7 +13,6 @@
                 <option value="waiting">Без роли</option>
                 <option value="student">Студент</option>
                 <option value="teacher">Преподаватель</option>
-                <option value="moderator">Модератор</option>
               </select>
             </div>
           </th>
@@ -30,7 +29,6 @@
                 <option value="waiting">Без роли</option>
                 <option value="student">Студент</option>
                 <option value="teacher">Преподаватель</option>
-                <option value="moderator">Модератор</option>
               </select>
             </td>
             <td class="action-buttons">
