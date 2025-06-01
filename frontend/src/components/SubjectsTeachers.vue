@@ -55,20 +55,31 @@
 
         <div v-if="showDeleteModal" class="modal-backdrop">
           <div class="error-modal">
-            <h2>Подтверждение</h2>
-            <p>Удалить предмет "{{ subjectToDelete?.name }}"?</p>
-            <div class="modal-actions">
-              <button @click="confirmDelete">Да</button>
-              <button @click="cancelDelete">Нет</button>
+            <div class="error-modal-blue">
+              <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+              <h2>Подтверждение</h2>
+              <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+            </div>
+            <div class="error-modal-text">
+              <p>Удалить предмет "{{ subjectToDelete?.name }}"?</p>
+              <div class="modal-actions">
+                <button @click="confirmDelete">Да</button>
+                <button @click="cancelDelete">Нет</button>
+              </div>
             </div>
           </div>
         </div>
-
         <div v-if="showErrorModal" class="modal-backdrop">
           <div class="error-modal">
-            <h2>Ошибка</h2>
-            <p>{{ modalErrorMessage }}</p>
-            <button @click="showErrorModal = false">Закрыть</button>
+            <div class="error-modal-blue">
+              <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+              <h2>Ошибка</h2>
+              <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+            </div>
+            <div class="error-modal-text">
+              <p>{{ modalErrorMessage }}</p>
+              <button @click="showErrorModal = false">Закрыть</button>
+            </div>
           </div>
         </div>
       </div>
@@ -84,6 +95,7 @@ import AddSubjectModal from './AddSubjectModal.vue'
 import EditSubjectModal from './EditSubjectModal.vue'
 import EditIcon from '../assets/icons/edit.png'
 import DeleteIcon from '../assets/icons/delete.png'
+import FEFUIcon from '../assets/icons/fefu.png'
 
 interface Subject {
   id: number
@@ -178,6 +190,7 @@ export default defineComponent({
       subjectToEdit,
       EditIcon,
       DeleteIcon,
+      FEFUIcon,
       fetchSubjects,
       showDeleteModal,
       subjectToDelete,
@@ -297,19 +310,46 @@ img {
   z-index: 1000;
 }
 
-.error-modal {
-  background: white;
-  padding: 25px 30px;
-  border-radius: 10px;
-  text-align: center;
-  min-width: 280px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
+  .error-modal {
+    background: white;
+    padding: 0;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 280px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
 
-.error-modal h2 {
-  margin: 0 0 10px;
-  font-size: 22px;
-}
+  .error-modal-blue {
+    background: #6995D0;
+    border-radius: 10px 10px 0 0;
+    min-width: 100px;
+    min-height: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .error-modal-text {
+    padding: 25px 30px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    min-height: 80px;
+  }
+
+  .error-modal-blue img {
+    width: auto;
+    height: 35px;
+    margin-bottom: 5px;
+  }
+
+  .error-modal h2 {
+    margin: 0;
+    font-size: 22px;
+    color: white;
+  }
 
 .error-modal p {
   margin: 0 0 15px;

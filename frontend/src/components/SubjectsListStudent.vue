@@ -1,18 +1,15 @@
 <template>
   <aside class="Teacher-main">
     <div v-if="!pageStore.currentSubject" class="subjects-container">
-      <button v-for="subject in subjects" :key="subject.id" class="subjects-info" @click="showGroups(subject)">
+      <button v-for="subject in subjects" :key="subject.id" class="subjects-info" @click="showTeachers(subject)">
         <img class="subject-icon" :src="SubjectIcon" alt="Subject" />
         <p class="subject">{{ subject.name }}</p>
       </button>
-
     </div>
     <div v-else class="subjects-container">
-      <!--<h2>Группы для {{ currentSubject.name }}</h2>-->
       <div v-for="item in pageStore.currentList" :key="item.id" class="groups-info">
         <p class="subject">{{ item.name }}</p>
       </div>
-
     </div>
 </aside>
 </template>
@@ -20,20 +17,22 @@
   <script>
     import { usePageStore } from '../stores/page';
     import SubjectIcon from '../assets/icons/programs.png';
+  
   export default {
     data() {
       return {
         SubjectIcon,
-
         subjects: [
-          { id: 1, name: 'Консультация по дисциплине "Основы алгоритмизации и программирования"' },
-          { id: 2, name: 'Основы алгоритмизации и программирования' },
+          { id: 1, name: 'Статистика' },
+          { id: 2, name: 'Консультация по дисциплине "Основы алгоритмизации и программирования' },
+          { id: 3, name: 'Основы алгоритмизации и программирования' },
+          { id: 4, name: 'Базы данных' },
         ],
-        groups: [
-          { id: 1, name: 'Б9123-01.03.02сп' },
-          { id: 2, name: 'Б9123-01.03.02ии' },
-          { id: 3, name: 'Б9123-02.03.01сцт' },
-          { id: 4, name: 'Б9123-09.03.03пикд' },
+        teachers: [
+          { id: 1, name: 'Сущенко А. А.' },
+          { id: 2, name: 'Деревягин' },
+          { id: 3, name: 'Месенев' },
+          { id: 4, name: 'Ганжа' },
         ],
       };
     },
@@ -42,9 +41,9 @@
       return { pageStore };
     },
     methods: {
-      showGroups(subject) {
-        this.pageStore.setSubjectWithGroups(subject, this.groups);
-      }
+      showTeachers(subject) {
+        this.pageStore.setSubjectWithTeachers(subject, this.teachers);
+      },
     },
   };
   </script>
@@ -129,5 +128,6 @@
     
     }
 
+    
 
   </style>  
