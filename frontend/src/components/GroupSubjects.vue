@@ -16,22 +16,45 @@
           <tr v-for="(entry, index) in subjects" :key="entry.id">
             <td>{{ index + 1 }}</td>
             <td>{{ entry.subject_name }}</td>
-            <td>{{ entry.teacher_name }}</td>
+            <td>
+              <template v-if="editingId === entry.id">
+                <select v-model="editTeacherId">
+                  <option
+                    v-for="teacher in availableTeachers"
+                    :key="teacher.id"
+                    :value="teacher.id"
+                  >
+                    {{ teacher.full_name }}
+                  </option>
+                </select>
+              </template>
+              <template v-else>
+                {{ entry.teacher_name }}
+              </template>
+            </td>
             <td class="action-buttons">
-              <button class="edit-button">
-                <img src="../assets/icons/edit.png" alt="Редактировать" />
-              </button>
-              <button class="delete-button" @click="openDeleteModal(entry)">
-                <img src="../assets/icons/delete.png" alt="Удалить" />
-              </button>
+              <template v-if="editingId === entry.id">
+                <button class="save-button" @click="saveEdit(entry)">
+                  <img src="../assets/icons/accept.png" alt="Сохранить" />
+                </button>
+                <button class="cancel-button" @click="cancelEdit">
+                  <img src="../assets/icons/cancel.png" alt="Отменить" />
+                </button>
+              </template>
+              <template v-else>
+                <button class="edit-button" @click="startEdit(entry)">
+                  <img src="../assets/icons/edit.png" alt="Редактировать" />
+                </button>
+                <button class="delete-button" @click="openDeleteModal(entry)">
+                  <img src="../assets/icons/delete.png" alt="Удалить" />
+                </button>
+              </template>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <button class="add-student-button">
-        Добавить предмет
-      </button>
+      <button class="add-student-button">Добавить предмет</button>
 
       <div v-if="showDeleteModal" class="modal-backdrop">
         <div class="error-modal">
@@ -66,6 +89,17 @@ interface Entry {
   subject_name: string
   teacher_name: string
   subject: number
+  teacher: number
+}
+
+interface Teacher {
+  id: number
+  full_name: string
+}
+
+interface SubjectWithTeachers {
+  id: number
+  teachers: Teacher[]
 }
 
 export default defineComponent({
@@ -76,6 +110,10 @@ export default defineComponent({
     const subjects = ref<Entry[]>([])
     const loading = ref(true)
     const error = ref('')
+    const editingId = ref<number | null>(null)
+    const editTeacherId = ref<number | null>(null)
+    const availableTeachers = ref<Teacher[]>([])
+
     const showDeleteModal = ref(false)
     const showErrorModal = ref(false)
     const modalErrorMessage = ref('')
@@ -93,6 +131,43 @@ export default defineComponent({
       }
     }
 
+    const fetchAvailableTeachers = async (subjectId: number) => {
+      try {
+        const res = await api.get<SubjectWithTeachers[]>('/api/subjects/')
+        const subject = res.data.find((s) => s.id === subjectId)
+        availableTeachers.value = subject?.teachers || []
+      } catch {
+        availableTeachers.value = []
+      }
+    }
+
+    const startEdit = async (entry: Entry) => {
+      editingId.value = entry.id
+      editTeacherId.value = entry.teacher
+      await fetchAvailableTeachers(entry.subject)
+    }
+
+    const cancelEdit = () => {
+      editingId.value = null
+      editTeacherId.value = null
+      availableTeachers.value = []
+    }
+
+    const saveEdit = async (entry: Entry) => {
+      try {
+        await api.put(`/api/groups/${groupId}/subject_teachers/`, {
+          subject_id: entry.subject,
+          teacher_id: editTeacherId.value
+        })
+        await fetchSubjects()
+        cancelEdit()
+      } catch (err: unknown) {
+        const e = err as AxiosError<{ detail?: string }>
+        modalErrorMessage.value = e.response?.data?.detail || 'Ошибка при сохранении'
+        showErrorModal.value = true
+      }
+    }
+
     const openDeleteModal = (entry: Entry) => {
       subjectToDelete.value = entry
       showDeleteModal.value = true
@@ -105,14 +180,11 @@ export default defineComponent({
 
     const confirmDeleteSubject = async () => {
       if (!subjectToDelete.value) return
-
       try {
         await api.delete(`/api/groups/${groupId}/subject_teachers/`, {
           params: { subject_id: subjectToDelete.value.subject }
         })
-        subjects.value = subjects.value.filter(
-          (entry) => entry.subject !== subjectToDelete.value?.subject
-        )
+        await fetchSubjects()
       } catch (err: unknown) {
         const e = err as AxiosError<{ detail?: string }>
         modalErrorMessage.value =
@@ -130,13 +202,19 @@ export default defineComponent({
       subjects,
       loading,
       error,
+      editingId,
+      editTeacherId,
+      availableTeachers,
+      startEdit,
+      cancelEdit,
+      saveEdit,
       showDeleteModal,
-      showErrorModal,
-      modalErrorMessage,
       subjectToDelete,
       openDeleteModal,
       cancelDeleteSubject,
-      confirmDeleteSubject
+      confirmDeleteSubject,
+      showErrorModal,
+      modalErrorMessage
     }
   }
 })

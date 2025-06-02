@@ -220,6 +220,28 @@ class GroupSubjectTeacherAPI(APIView):
         GroupSubjectTeacher.objects.create(group=group, subject=subject, teacher=teacher)
         return Response({'success': True}, status=status.HTTP_201_CREATED)
 
+    def put(self, request, group_id):
+        subject_id = request.data.get('subject_id')
+        teacher_id = request.data.get('teacher_id')
+
+        if not subject_id or not teacher_id:
+            return Response({'detail': 'subject_id и teacher_id обязательны'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            assignment = GroupSubjectTeacher.objects.get(group_id=group_id, subject_id=subject_id)
+        except GroupSubjectTeacher.DoesNotExist:
+            return Response({'detail': 'Назначение не найдено'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            teacher = User.objects.get(id=teacher_id, role='teacher')
+        except User.DoesNotExist:
+            return Response({'detail': 'Преподаватель не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        assignment.teacher = teacher
+        assignment.save()
+
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
     def delete(self, request, group_id):
         subject_id = request.query_params.get('subject_id')
 
