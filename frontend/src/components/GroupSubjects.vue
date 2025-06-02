@@ -54,7 +54,16 @@
         </tbody>
       </table>
 
-      <button class="add-student-button">Добавить предмет</button>
+      <button class="add-student-button" @click="showAddModal = true">
+        Добавить предмет
+      </button>
+
+      <AddGroupSubjectModal
+        v-if="showAddModal"
+        :group-id="groupId"
+        @close="showAddModal = false"
+        @subject-added="handleSubjectAdded"
+      />
 
       <div v-if="showDeleteModal" class="modal-backdrop">
         <div class="error-modal">
@@ -83,6 +92,7 @@ import { defineComponent, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
+import AddGroupSubjectModal from 'components/AddGroupSubjectModal.vue'
 
 interface Entry {
   id: number
@@ -104,9 +114,13 @@ interface SubjectWithTeachers {
 
 export default defineComponent({
   name: 'GroupSubjects',
+  components: {
+    AddGroupSubjectModal
+  },
   setup() {
     const route = useRoute()
-    const groupId = route.params.id
+    const groupId = ref(Number(route.params.id))
+
     const subjects = ref<Entry[]>([])
     const loading = ref(true)
     const error = ref('')
@@ -118,10 +132,11 @@ export default defineComponent({
     const showErrorModal = ref(false)
     const modalErrorMessage = ref('')
     const subjectToDelete = ref<Entry | null>(null)
+    const showAddModal = ref(false)
 
     const fetchSubjects = async () => {
       try {
-        const { data } = await api.get(`/api/groups/${groupId}/subject_teachers/`)
+        const { data } = await api.get(`/api/groups/${groupId.value}/subject_teachers/`)
         subjects.value = data
       } catch (err: unknown) {
         const e = err as AxiosError<{ detail?: string }>
@@ -155,7 +170,7 @@ export default defineComponent({
 
     const saveEdit = async (entry: Entry) => {
       try {
-        await api.put(`/api/groups/${groupId}/subject_teachers/`, {
+        await api.put(`/api/groups/${groupId.value}/subject_teachers/`, {
           subject_id: entry.subject,
           teacher_id: editTeacherId.value
         })
@@ -181,14 +196,13 @@ export default defineComponent({
     const confirmDeleteSubject = async () => {
       if (!subjectToDelete.value) return
       try {
-        await api.delete(`/api/groups/${groupId}/subject_teachers/`, {
+        await api.delete(`/api/groups/${groupId.value}/subject_teachers/`, {
           params: { subject_id: subjectToDelete.value.subject }
         })
         await fetchSubjects()
       } catch (err: unknown) {
         const e = err as AxiosError<{ detail?: string }>
-        modalErrorMessage.value =
-          e.response?.data?.detail || 'Не удалось удалить предмет из группы'
+        modalErrorMessage.value = e.response?.data?.detail || 'Не удалось удалить предмет из группы'
         showErrorModal.value = true
       } finally {
         subjectToDelete.value = null
@@ -196,9 +210,15 @@ export default defineComponent({
       }
     }
 
+    const handleSubjectAdded = () => {
+      showAddModal.value = false
+      fetchSubjects()
+    }
+
     onMounted(fetchSubjects)
 
     return {
+      groupId,
       subjects,
       loading,
       error,
@@ -214,7 +234,9 @@ export default defineComponent({
       cancelDeleteSubject,
       confirmDeleteSubject,
       showErrorModal,
-      modalErrorMessage
+      modalErrorMessage,
+      showAddModal,
+      handleSubjectAdded
     }
   }
 })
