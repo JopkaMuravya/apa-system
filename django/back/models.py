@@ -87,26 +87,6 @@ class StudentGroup(models.Model):
         return f"{self.student} в {self.group}"
 
 
-class GroupSubject(models.Model):
-    group = models.ForeignKey(
-        Group,
-        on_delete=models.CASCADE,
-        related_name='group_subjects'
-    )
-
-    subject = models.ForeignKey(
-        Subject,
-        on_delete=models.CASCADE,
-        related_name='subject_groups'
-    )
-
-    class Meta:
-        unique_together = ('group', 'subject')
-
-    def __str__(self):
-        return f"{self.group} изучает {self.subject}"
-
-
 class TeacherSubject(models.Model):
     teacher = models.ForeignKey(
         User,

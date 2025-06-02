@@ -1,6 +1,8 @@
 <template>
   <div class="group-detail">
-    <div>
+    <div v-if="loading">Загрузка данных...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else>
       <table class="students-table">
         <thead>
           <tr>
@@ -11,10 +13,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(subject, index) in subjects" :key="index">
+          <tr v-for="(entry, index) in subjects" :key="index">
             <td>{{ index + 1 }}</td>
-            <td>{{ subject.name }}</td>
-            <td>{{ subject.teacher }}</td>
+            <td>{{ entry.subject_name }}</td>
+            <td>{{ entry.teacher_name }}</td>
             <td class="action-buttons">
               <button class="edit-button">
                 <img src="../assets/icons/edit.png" alt="Редактировать" />
@@ -35,17 +37,41 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent, ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { api } from 'boot/axios'
+import type { AxiosError } from 'axios'
+
+export default defineComponent({
   name: 'GroupSubjects',
   setup() {
-    const subjects = [
-      { name: 'Математика', teacher: 'Иванов И.И.' },
-      { name: 'История', teacher: 'Петров П.П.' },
-    ]
+    const route = useRoute()
+    const groupId = route.params.id
+    const subjects = ref<{ subject_name: string; teacher_name: string }[]>([])
+    const loading = ref(true)
+    const error = ref('')
 
-    return { subjects }
+    const fetchSubjects = async () => {
+      try {
+        const { data } = await api.get(`/api/groups/${groupId}/subject_teachers/`)
+        subjects.value = data
+      } catch (err: unknown) {
+        const e = err as AxiosError<{ detail?: string }>
+        error.value = e.response?.data?.detail || 'Ошибка при загрузке предметов'
+      } finally {
+        loading.value = false
+      }
+    }
+
+    onMounted(fetchSubjects)
+
+    return {
+      subjects,
+      loading,
+      error
+    }
   }
-}
+})
 </script>
 
 <style scoped>
