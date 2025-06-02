@@ -13,7 +13,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(entry, index) in subjects" :key="index">
+          <tr v-for="(entry, index) in subjects" :key="entry.id">
             <td>{{ index + 1 }}</td>
             <td>{{ entry.subject_name }}</td>
             <td>{{ entry.teacher_name }}</td>
@@ -21,7 +21,7 @@
               <button class="edit-button">
                 <img src="../assets/icons/edit.png" alt="Редактировать" />
               </button>
-              <button class="delete-button">
+              <button class="delete-button" @click="openDeleteModal(entry)">
                 <img src="../assets/icons/delete.png" alt="Удалить" />
               </button>
             </td>
@@ -32,6 +32,25 @@
       <button class="add-student-button">
         Добавить предмет
       </button>
+
+      <div v-if="showDeleteModal" class="modal-backdrop">
+        <div class="error-modal">
+          <h2>Подтверждение</h2>
+          <p>Удалить {{ subjectToDelete?.subject_name }} из группы?</p>
+          <div style="display: flex; justify-content: center; gap: 10px;">
+            <button @click="confirmDeleteSubject">Да</button>
+            <button @click="cancelDeleteSubject">Нет</button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="showErrorModal" class="modal-backdrop">
+        <div class="error-modal">
+          <h2>Ошибка</h2>
+          <p>{{ modalErrorMessage }}</p>
+          <button @click="showErrorModal = false">Закрыть</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -42,14 +61,25 @@ import { useRoute } from 'vue-router'
 import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
 
+interface Entry {
+  id: number
+  subject_name: string
+  teacher_name: string
+  subject: number
+}
+
 export default defineComponent({
   name: 'GroupSubjects',
   setup() {
     const route = useRoute()
     const groupId = route.params.id
-    const subjects = ref<{ subject_name: string; teacher_name: string }[]>([])
+    const subjects = ref<Entry[]>([])
     const loading = ref(true)
     const error = ref('')
+    const showDeleteModal = ref(false)
+    const showErrorModal = ref(false)
+    const modalErrorMessage = ref('')
+    const subjectToDelete = ref<Entry | null>(null)
 
     const fetchSubjects = async () => {
       try {
@@ -63,12 +93,50 @@ export default defineComponent({
       }
     }
 
+    const openDeleteModal = (entry: Entry) => {
+      subjectToDelete.value = entry
+      showDeleteModal.value = true
+    }
+
+    const cancelDeleteSubject = () => {
+      subjectToDelete.value = null
+      showDeleteModal.value = false
+    }
+
+    const confirmDeleteSubject = async () => {
+      if (!subjectToDelete.value) return
+
+      try {
+        await api.delete(`/api/groups/${groupId}/subject_teachers/`, {
+          params: { subject_id: subjectToDelete.value.subject }
+        })
+        subjects.value = subjects.value.filter(
+          (entry) => entry.subject !== subjectToDelete.value?.subject
+        )
+      } catch (err: unknown) {
+        const e = err as AxiosError<{ detail?: string }>
+        modalErrorMessage.value =
+          e.response?.data?.detail || 'Не удалось удалить предмет из группы'
+        showErrorModal.value = true
+      } finally {
+        subjectToDelete.value = null
+        showDeleteModal.value = false
+      }
+    }
+
     onMounted(fetchSubjects)
 
     return {
       subjects,
       loading,
-      error
+      error,
+      showDeleteModal,
+      showErrorModal,
+      modalErrorMessage,
+      subjectToDelete,
+      openDeleteModal,
+      cancelDeleteSubject,
+      confirmDeleteSubject
     }
   }
 })
