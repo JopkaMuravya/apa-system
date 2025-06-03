@@ -60,7 +60,21 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
 
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+from .models import Group
+
 class GroupSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        max_length=100,
+        validators=[
+            UniqueValidator(
+                queryset=Group.objects.all(),
+                message='Группа с таким названием уже существует.'
+            )
+        ]
+    )
+
     class Meta:
         model = Group
         fields = ['id', 'name']
