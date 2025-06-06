@@ -332,12 +332,12 @@ class TeacherGroupsAPI(APIView):
         except Exception as e:
             return Response({'detail': str(e)}, status=500)
 
+
 class StudentSubjectsAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         try:
-            # Проверка роли пользователя
             if request.user.role != 'student':
                 return Response({'detail': 'Доступ запрещен'}, status=403)
 
