@@ -7,10 +7,9 @@
       </button>
     </div>
     <div v-else class="subjects-container">
-      <!--<h2>Группы для {{ currentSubject.name }}</h2>-->
-      <div v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info">
+      <button v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info" @click="goToTeacherGrades">
         <p class="subject">{{ group.name }}</p>
-      </div>
+      </button>
     </div>
 </aside>
 </template>
@@ -21,6 +20,7 @@
     import AddIcon from '../assets/icons/add_blue.png';
     import AddIcon2 from '../assets/icons/add_red.png';
     import { api } from '../boot/axios';
+    import {useRouter} from 'vue-router';
   
   export default {
     data() {
@@ -36,7 +36,8 @@
     },
     setup() {
       const pageStore = usePageStore();
-      return { pageStore };
+      const router = useRouter();
+      return { pageStore, router };
     },
     created() {
       this.fetchTeacherSubjects();
@@ -68,15 +69,21 @@
           this.loading = false;
         }
       },
-      addSubject() {
-        // Логика для добавления нового предмета
-      },
       hoverAdd() {
         this.currentAddIcon = this.AddIcon2;
       },
       unhoverAdd() {
         this.currentAddIcon = this.AddIcon;
-      }
+      },
+      goToTeacherGrades(group) {
+        this.router.push({
+          name: 'teacher-grades',
+          query: {
+            groupId: group.id,
+            groupName: group.name
+          }
+        });
+      },
     },
   };
   </script>
