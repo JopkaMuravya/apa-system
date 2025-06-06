@@ -342,7 +342,7 @@ class StudentSubjectsAPI(APIView):
                 return Response({'detail': 'Доступ запрещен'}, status=403)
 
             student_groups = StudentGroup.objects.filter(student=request.user).values_list('group', flat=True)
-            subjects = Subject.objects.filter(subject_groups__group__in=student_groups).distinct()
+            subjects = Subject.objects.filter(group_teaching_assignments__group__in=student_groups).distinct()
 
             serializer = SubjectSerializer(subjects, many=True)
             return Response(serializer.data)
