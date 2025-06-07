@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Group, Subject, GroupSubjectTeacher, Grade
+from .models import User, Group, Subject, GroupSubjectTeacher, Grade, TeacherComment
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -159,6 +159,7 @@ class GradeAssignmentSerializer(serializers.Serializer):
     grades = serializers.DictField(child=serializers.CharField(max_length=10))
 
 
-class TeacherCommentSerializer(serializers.Serializer):
-    comment = serializers.CharField()
-    link = serializers.URLField()
+class TeacherCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeacherComment
+        fields = ['comment', 'link']

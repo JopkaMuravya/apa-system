@@ -4,7 +4,7 @@ from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, get_user_model
 
-from .models import Group, Subject, StudentGroup, TeacherSubject, GroupSubjectTeacher, Grade
+from .models import Group, Subject, StudentGroup, TeacherSubject, GroupSubjectTeacher, Grade, TeacherComment
 from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, SubjectSerializer, \
     GroupSubjectTeacherSerializer, TeacherCommentSerializer, GradeAssignmentSerializer
 from .permissions import IsModerator  
@@ -382,6 +382,13 @@ class GradeAPI(APIView):
                 subject=subject
             ).values_list('assignment_name', flat=True).distinct()
 
+            # Получаем комментарий преподавателя
+            teacher_comment = TeacherComment.objects.filter(
+                teacher=request.user,
+                group=group,
+                subject=subject
+            ).first()
+
             # Формируем данные для таблицы
             grades_data = []
             for student in students:
@@ -401,7 +408,9 @@ class GradeAPI(APIView):
 
             return Response({
                 'assignments': list(assignments),
-                'grades': grades_data
+                'grades': grades_data,
+                'comment': teacher_comment.comment if teacher_comment else '',
+                'link': teacher_comment.link if teacher_comment else ''
             })
         except Exception as e:
             return Response({'detail': str(e)}, status=500)
@@ -436,10 +445,25 @@ class GradeAPI(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-        # В реальном проекте сохраняли бы в базу
-        # Здесь просто возвращаем успешный ответ
-        return Response({
-            'success': True,
-            'comment': serializer.validated_data['comment'],
-            'link': serializer.validated_data['link']
-        })
+        try:
+            group = Group.objects.get(id=group_id)
+            subject = Subject.objects.get(id=subject_id)
+
+            # Создаем или обновляем комментарий преподавателя
+            teacher_comment, created = TeacherComment.objects.update_or_create(
+                teacher=request.user,
+                group=group,
+                subject=subject,
+                defaults={
+                    'comment': serializer.validated_data['comment'],
+                    'link': serializer.validated_data['link']
+                }
+            )
+
+            return Response({
+                'success': True,
+                'comment': teacher_comment.comment,
+                'link': teacher_comment.link
+            })
+        except Exception as e:
+            return Response({'detail': str(e)}, status=500)

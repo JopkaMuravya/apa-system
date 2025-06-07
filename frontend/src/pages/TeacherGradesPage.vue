@@ -160,6 +160,8 @@ export default defineComponent({
         const response = await api.get(`/api/grades/${this.groupId}/${this.subjectId}/`);
         this.assignments = response.data.assignments;
         this.grades = response.data.grades;
+        this.teacherComment = response.data.comment || '';
+        this.communicationLink = response.data.link || '';
       } catch (error) {
         console.error('Ошибка загрузки оценок:', error);
       }
