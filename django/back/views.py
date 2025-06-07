@@ -4,8 +4,9 @@ from rest_framework import status, generics, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, get_user_model
 
-from .models import Group, Subject, StudentGroup, TeacherSubject, GroupSubjectTeacher
-from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, SubjectSerializer, GroupSubjectTeacherSerializer
+from .models import Group, Subject, StudentGroup, TeacherSubject, GroupSubjectTeacher, Grade
+from .serializers import UserSerializer, GroupSerializer, GroupDetailSerializer, SubjectSerializer, \
+    GroupSubjectTeacherSerializer, TeacherCommentSerializer, GradeAssignmentSerializer
 from .permissions import IsModerator  
 
 User = get_user_model()
@@ -348,3 +349,97 @@ class StudentSubjectsAPI(APIView):
             return Response(serializer.data)
         except Exception as e:
             return Response({'detail': str(e)}, status=500)
+
+
+class GradeAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, group_id, subject_id):
+        if request.user.role != 'teacher':
+            return Response({'detail': 'Доступ запрещен'}, status=403)
+
+        try:
+            group = Group.objects.get(id=group_id)
+            subject = Subject.objects.get(id=subject_id)
+
+            # Проверяем, что преподаватель ведет этот предмет в группе
+            if not GroupSubjectTeacher.objects.filter(
+                    group=group,
+                    subject=subject,
+                    teacher=request.user
+            ).exists():
+                return Response({'detail': 'Преподаватель не ведет этот предмет в группе'}, status=403)
+
+            # Получаем всех студентов группы
+            students = User.objects.filter(
+                student_groups__group=group,
+                role='student'
+            ).distinct()
+
+            # Получаем все задания по предмету
+            assignments = Grade.objects.filter(
+                group=group,
+                subject=subject
+            ).values_list('assignment_name', flat=True).distinct()
+
+            # Формируем данные для таблицы
+            grades_data = []
+            for student in students:
+                student_grades = {'student': student.id, 'full_name': f"{student.last_name} {student.first_name}"}
+                for assignment in assignments:
+                    try:
+                        grade = Grade.objects.get(
+                            student=student,
+                            group=group,
+                            subject=subject,
+                            assignment_name=assignment
+                        )
+                        student_grades[assignment] = grade.value
+                    except Grade.DoesNotExist:
+                        student_grades[assignment] = ''
+                grades_data.append(student_grades)
+
+            return Response({
+                'assignments': list(assignments),
+                'grades': grades_data
+            })
+        except Exception as e:
+            return Response({'detail': str(e)}, status=500)
+
+    def post(self, request, group_id, subject_id):
+        serializer = GradeAssignmentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        try:
+            group = Group.objects.get(id=group_id)
+            subject = Subject.objects.get(id=subject_id)
+            assignment_name = serializer.validated_data['assignment_name']
+
+            # Создаем/обновляем оценки
+            for student_id, grade_value in serializer.validated_data['grades'].items():
+                student = User.objects.get(id=student_id, role='student')
+                Grade.objects.update_or_create(
+                    student=student,
+                    group=group,
+                    subject=subject,
+                    assignment_name=assignment_name,
+                    defaults={'value': grade_value}
+                )
+
+            return Response({'success': True})
+        except Exception as e:
+            return Response({'detail': str(e)}, status=500)
+
+    def put(self, request, group_id, subject_id):
+        serializer = TeacherCommentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        # В реальном проекте сохраняли бы в базу
+        # Здесь просто возвращаем успешный ответ
+        return Response({
+            'success': True,
+            'comment': serializer.validated_data['comment'],
+            'link': serializer.validated_data['link']
+        })

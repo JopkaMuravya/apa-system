@@ -7,7 +7,7 @@
       </button>
     </div>
     <div v-else class="subjects-container">
-      <button v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info" @click="goToTeacherGrades">
+      <button v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info" @click="goToTeacherGrades(group)">
         <p class="subject">{{ group.name }}</p>
       </button>
     </div>
@@ -80,7 +80,9 @@
           name: 'teacher-grades',
           query: {
             groupId: group.id,
-            groupName: group.name
+            groupName: group.name,
+            subjectId: this.pageStore.currentSubject.id,
+            subjectName: this.pageStore.currentSubject.name
           }
         });
       },
