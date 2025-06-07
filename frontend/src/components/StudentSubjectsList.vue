@@ -24,6 +24,7 @@ export default {
     const loading = ref(false);
     const error = ref(null);
     const router = useRouter();
+    const groupId = ref(null);
 
     const fetchSubjects = async () => {
       loading.value = true;
@@ -38,13 +39,42 @@ export default {
       }
     };
 
+    const fetchCurrentUserGroup = async () => {
+      try {
+        const response = await api.get('/api/current-user/');
+        if (response.data.group && response.data.group.id) {
+          groupId.value = response.data.group.id;
+        }
+      } catch (err) {
+        console.error('Ошибка при загрузке данных пользователя:', err);
+      }
+    };
+
     const goToSubjectDetail = (id) => {
       const subject = subjects.value.find(s => s.id === id);
-      router.push({ name: 'student-subject-detail', params: { id }, query: { name: subject ? subject.name : '' } });
+      if (groupId.value) {
+        router.push({ 
+          name: 'student-grades', 
+          query: { 
+            subjectId: id, 
+            subjectName: subject ? subject.name : '', 
+            groupId: groupId.value 
+          } 
+        });
+      } else {
+        router.push({ 
+          name: 'student-grades', 
+          query: { 
+            subjectId: id, 
+            subjectName: subject ? subject.name : '' 
+          } 
+        });
+      }
     };
 
     onMounted(() => {
       fetchSubjects();
+      fetchCurrentUserGroup();
     });
 
     return {

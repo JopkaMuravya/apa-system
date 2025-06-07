@@ -150,3 +150,59 @@ class Lesson(models.Model):
 
     def __str__(self):
         return f"{self.subject} для {self.group} ({self.lesson_date})"
+
+
+class Grade(models.Model):
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='grades'
+    )
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name='grades'
+    )
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='grades'
+    )
+    assignment_name = models.CharField(max_length=255)
+    value = models.CharField(max_length=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('student', 'subject', 'group', 'assignment_name')
+
+    def __str__(self):
+        return f"{self.student} - {self.value} ({self.assignment_name})"
+
+
+class TeacherComment(models.Model):
+    teacher = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='teacher_comments'
+    )
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='teacher_comments'
+    )
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name='teacher_comments'
+    )
+    comment = models.TextField(blank=True)
+    link = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('teacher', 'group', 'subject')
+
+    def __str__(self):
+        return f"Комментарий {self.teacher} для {self.group} по {self.subject}"
