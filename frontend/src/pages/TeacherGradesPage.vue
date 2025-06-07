@@ -104,7 +104,12 @@ import SideBar from '../components/SideBar.vue';
 import TopBar from '../components/TopBar.vue';
 import GradesTable from '../components/GradesTable.vue';
 import { api } from '../boot/axios';
-import { useUserStore } from '../stores/user';
+
+interface StudentGrade {
+  student: number;
+  full_name: string;
+  [assignment: string]: string | number;
+}
 
 export default defineComponent({
   name: 'GradesPage',
@@ -120,7 +125,7 @@ export default defineComponent({
       subjectId: null as number | null,
       subjectName: '',
       assignments: [] as string[],
-      grades: [] as any[],
+      grades: [] as StudentGrade[],
       teacherName: '',
       teacherComment: '',
       communicationLink: '',
@@ -131,8 +136,7 @@ export default defineComponent({
     };
   },
   async created() {
-    const userStore = useUserStore();
-    this.teacherName = userStore.userName;
+    await this.fetchTeacherName();
     
     this.groupId = parseInt(this.$route.query.groupId as string);
     this.groupName = this.$route.query.groupName as string;
@@ -142,6 +146,15 @@ export default defineComponent({
     await this.loadGrades();
   },
   methods: {
+    async fetchTeacherName() {
+      try {
+        const response = await api.get('/api/current-user/');
+        this.teacherName = response.data.full_name;
+      } catch (error) {
+        console.error('Ошибка загрузки данных преподавателя:', error);
+        this.teacherName = 'Неизвестный преподаватель';
+      }
+    },
     async loadGrades() {
       try {
         const response = await api.get(`/api/grades/${this.groupId}/${this.subjectId}/`);

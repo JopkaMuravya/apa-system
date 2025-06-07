@@ -153,9 +153,11 @@ class GradeSerializer(serializers.ModelSerializer):
         fields = ['id', 'student', 'subject', 'group', 'assignment_name', 'value']
         read_only_fields = ['id']
 
+
 class GradeAssignmentSerializer(serializers.Serializer):
     assignment_name = serializers.CharField(max_length=255)
     grades = serializers.DictField(child=serializers.CharField(max_length=10))
+
 
 class TeacherCommentSerializer(serializers.Serializer):
     comment = serializers.CharField()

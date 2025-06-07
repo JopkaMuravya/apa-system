@@ -32,6 +32,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
+interface StudentGrade {
+  student: number; // ID студента
+  full_name: string; // Полное имя студента
+  [assignment: string]: string | number; // Динамические поля с оценками
+}
+
 export default defineComponent({
   name: 'GradesTable',
   props: {
@@ -40,7 +46,7 @@ export default defineComponent({
       required: true
     },
     grades: {
-      type: Array as () => any[],
+      type: Array as () => StudentGrade[],
       required: true
     },
     isEditing: {
