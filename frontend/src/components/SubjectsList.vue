@@ -5,17 +5,10 @@
         <img class="subject-icon" :src="SubjectIcon" alt="Subject" />
         <p class="subject">{{ subject.name }}</p>
       </button>
-      <button class="new-subject-button" @click="subject" @mouseover="hoverAdd" @mouseleave="unhoverAdd">
-        <img :src="currentAddIcon" alt="Новый предмет" />
-      </button>
     </div>
     <div v-else class="subjects-container">
-      <!--<h2>Группы для {{ currentSubject.name }}</h2>-->
-      <div v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info">
+      <button v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info" @click="goToTeacherGrades(group)">
         <p class="subject">{{ group.name }}</p>
-      </div>
-      <button class="new-group-button" @click="subject" @mouseover="hoverAdd" @mouseleave="unhoverAdd">
-        <img :src="currentAddIcon" alt="Новая группа" />
       </button>
     </div>
 </aside>
@@ -27,6 +20,7 @@
     import AddIcon from '../assets/icons/add_blue.png';
     import AddIcon2 from '../assets/icons/add_red.png';
     import { api } from '../boot/axios';
+    import {useRouter} from 'vue-router';
   
   export default {
     data() {
@@ -42,7 +36,8 @@
     },
     setup() {
       const pageStore = usePageStore();
-      return { pageStore };
+      const router = useRouter();
+      return { pageStore, router };
     },
     created() {
       this.fetchTeacherSubjects();
@@ -61,25 +56,36 @@
           this.loading = false;
         }
       },
-      showGroups(subject) {
-        // Дальше добавить логику запроса из API групп для предмета
-        const mockGroups = [
-          { id: 1, name: 'Б9123-01.03.02сп' },
-          { id: 2, name: 'Б9123-01.03.02ии' },
-          { id: 3, name: 'Б9123-02.03.01сцт' },
-          { id: 4, name: 'Б9123-09.03.03пикд' },
-        ];
-        this.pageStore.setSubject(subject, mockGroups);
-      },
-      addSubject() {
-        // Логика для добавления нового предмета
+      async showGroups(subject) {
+        this.loading = true;
+        this.error = null;
+        try {
+          const response = await api.get(`/api/teacher/subjects/${subject.id}/groups/`);
+          this.pageStore.setSubject(subject, response.data);
+        } catch (error) {
+          console.error('Ошибка при загрузке групп:', error);
+          this.error = 'Не удалось загрузить список групп';
+        } finally {
+          this.loading = false;
+        }
       },
       hoverAdd() {
         this.currentAddIcon = this.AddIcon2;
       },
       unhoverAdd() {
         this.currentAddIcon = this.AddIcon;
-      }
+      },
+      goToTeacherGrades(group) {
+        this.router.push({
+          name: 'teacher-grades',
+          query: {
+            groupId: group.id,
+            groupName: group.name,
+            subjectId: this.pageStore.currentSubject.id,
+            subjectName: this.pageStore.currentSubject.name
+          }
+        });
+      },
     },
   };
   </script>
