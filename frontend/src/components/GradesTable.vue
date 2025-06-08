@@ -5,40 +5,24 @@
         <tr>
           <th>№</th>
           <th>Студент</th>
-          <th>Колонка 1</th>
-          <th>Колонка 2</th>
-          <th>Колонка 3</th>
-          <th>Колонка 4</th>
-          <th>Колонка 5</th>
+          <th v-for="assignment in assignments" :key="assignment">
+            {{ assignment }}
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1</td>
-          <td>Иванов А.А.</td>
-          <td class="editable-grade" contenteditable="false">5</td> <!--Вот так должна выглядить ячнйка с оценкой у студента и у учителя когда он ее не редактирует-->
-          <td class="editable-grade" contenteditable="true">5</td> <!--Вот так должна выглядить ячнйка с оценкой у учителя когда он ее редактирует-->
-          <td class="editable-grade" contenteditable="false">4</td>
-          <td class="editable-grade" contenteditable="false"></td>
-          <td class="editable-grade" contenteditable="false"></td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Петров Б.В.</td>
-          <td class="editable-grade" contenteditable="false">4</td>
-          <td class="editable-grade" contenteditable="false">3</td>
-          <td class="editable-grade" contenteditable="false">4</td>
-          <td class="editable-grade" contenteditable="false"></td>
-          <td class="editable-grade" contenteditable="false"></td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>Сидорова Г.Д.</td>
-          <td class="editable-grade" contenteditable="false">5</td>
-          <td class="editable-grade" contenteditable="false">5</td>
-          <td class="editable-grade" contenteditable="false">5</td>
-          <td class="editable-grade" contenteditable="false"></td>
-          <td class="editable-grade" contenteditable="false"></td>
+        <tr v-for="(student, index) in grades" :key="student.student">
+          <td>{{ index + 1 }}</td>
+          <td>{{ student.full_name }}</td>
+          <td 
+            v-for="assignment in assignments" 
+            :key="`${student.student}-${assignment}`"
+            class="editable-grade" 
+            :contenteditable="isEditing"
+            @blur="onGradeChange(student.student, assignment, $event)"
+          >
+            {{ student[assignment] || '' }}
+          </td>
         </tr>
       </tbody>
     </table>
@@ -46,15 +30,46 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
+
+interface StudentGrade {
+  student: number;
+  full_name: string;
+  [assignment: string]: string | number;
+}
 
 export default defineComponent({
   name: 'GradesTable',
-})
+  props: {
+    assignments: {
+      type: Array as () => string[],
+      required: true
+    },
+    grades: {
+      type: Array as () => StudentGrade[],
+      required: true
+    },
+    isEditing: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['update-grade'],
+  methods: {
+    onGradeChange(studentId: number, assignment: string, event: Event) {
+      const value = (event.target as HTMLElement).innerText.trim();
+      this.$emit('update-grade', { 
+        studentId, 
+        assignment, 
+        value 
+      });
+    }
+  }
+});
 </script>
 
 <style scoped>
-  .grades-table-container {
+.grades-table-container {
     overflow-x: auto;
     margin-bottom: 15px;
   }

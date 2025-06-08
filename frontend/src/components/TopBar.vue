@@ -10,7 +10,10 @@
         @keyup.enter="search"
       />
     </div>
-    <div class="user">{{ fullName }}</div>
+    <div class="user">
+      {{ fullName }}
+      <span v-if="group && role === 'student'" class="user-group">({{ group.name }})</span>
+    </div>
     <button
       class="exit-button"
       @click="login"
@@ -29,6 +32,11 @@ import ExitIcon2 from '../assets/icons/exit_red.png'
 import SearchIcon from '../assets/icons/search.png'
 import { api } from '../boot/axios'
 
+interface Group {
+  id: number
+  name: string
+}
+
 export default defineComponent({
   name: 'TopBar',
   emits: ['search'],
@@ -36,6 +44,8 @@ export default defineComponent({
     const searchQuery = ref('')
     const currentExitIcon = ref(ExitIcon)
     const fullName = ref('')
+    const group = ref<Group | null>(null)
+    const role = ref('')
 
     const fetchCurrentUser = async () => {
       try {
@@ -47,9 +57,13 @@ export default defineComponent({
           user.middle_name || ''
         ].filter(Boolean)
         fullName.value = parts.join(' ')
+        group.value = user.group || null
+        role.value = user.role || ''
       } catch (error) {
         console.error('Ошибка при получении данных пользователя:', error)
         fullName.value = 'Пользователь'
+        group.value = null
+        role.value = ''
       }
     }
 
@@ -80,6 +94,8 @@ export default defineComponent({
       currentExitIcon,
       SearchIcon,
       fullName,
+      group,
+      role,
       login,
       hoverExit,
       unhoverExit,
@@ -141,6 +157,12 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     min-width: 45%;
+  }
+
+  .user-group {
+    font-size: 16px;
+    margin-left: 8px;
+    opacity: 0.8;
   }
 
   .exit-button {

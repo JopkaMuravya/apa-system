@@ -38,6 +38,12 @@ export default defineComponent({
       if (route.name === 'group-detail') {
         return decodeURIComponent(route.params.name as string || '')
       }
+      if (route.name === 'student-grades') {
+        return route.query.subjectName as string || 'Предмет'
+      }
+      if (route.name === 'teacher-grades') {
+        return route.query.subjectName as string || 'Предмет'
+      }
       return 'Страница'
     })
 

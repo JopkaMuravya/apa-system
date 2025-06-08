@@ -13,26 +13,48 @@
 
       <button
         class="add-button"
-        @click="createGroup"
+        @click="showCreateModal = true"
         @mouseover="hoverAdd"
         @mouseleave="unhoverAdd"
       >
         <img :src="currentAddIcon" alt="Добавить группу" />
       </button>
     </div>
+
+    <CreateGroupModal
+      v-if="showCreateModal"
+      @close="showCreateModal = false"
+      @group-created="handleGroupCreated"
+    />
   </aside>
 </template>
 
+<<<<<<< HEAD
 <script>
 import SubjectIcon from '../assets/icons/programs.png';
 import AddIcon from '../assets/icons/add_blue.png';
 import AddIcon2 from '../assets/icons/add_red.png';
 import { ref, onMounted, computed } from 'vue'
+=======
+<script lang="ts">
+import { defineComponent, ref, onMounted } from 'vue'
+>>>>>>> origin/main
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
 
-export default {
+import SubjectIcon from '../assets/icons/programs.png'
+import AddIcon from '../assets/icons/add_blue.png'
+import AddIcon2 from '../assets/icons/add_red.png'
+import CreateGroupModal from './CreateGroupModal.vue'
+
+interface Group {
+  id: number
+  name: string
+}
+
+export default defineComponent({
   name: 'GroupList',
+<<<<<<< HEAD
   props: {
     searchQuery: {
       type: String,
@@ -40,9 +62,14 @@ export default {
     }
   },
   setup(props) {
+=======
+  components: { CreateGroupModal },
+  setup() {
+>>>>>>> origin/main
     const router = useRouter()
-    const groups = ref([])
+    const groups = ref<Group[]>([])
     const currentAddIcon = ref(AddIcon)
+    const showCreateModal = ref(false)
 
     const fetchGroups = async () => {
       try {
@@ -53,18 +80,7 @@ export default {
       }
     }
 
-    const createGroup = async () => {
-      const name = prompt('Введите название новой группы:')
-      if (!name) return
-      try {
-        await api.post('/api/groups/', { name })
-        fetchGroups()
-      } catch (err) {
-        alert('Ошибка при создании группы')
-      }
-    }
-
-    const openGroup = (group) => {
+    const openGroup = (group: Group) => {
       router.push({
         name: 'group-detail',
         params: {
@@ -72,6 +88,10 @@ export default {
           name: encodeURIComponent(group.name)
         }
       })
+    }
+
+    const handleGroupCreated = () => {
+      fetchGroups()
     }
 
     const hoverAdd = () => {
@@ -100,13 +120,18 @@ export default {
       currentAddIcon,
       hoverAdd,
       unhoverAdd,
-      createGroup,
       openGroup,
+<<<<<<< HEAD
       SubjectIcon,
       filteredGroups
+=======
+      showCreateModal,
+      handleGroupCreated,
+      SubjectIcon
+>>>>>>> origin/main
     }
   }
-}
+})
 </script>
 
 <style scoped>
