@@ -58,7 +58,6 @@
             </div>
 
           <div class="editing-buttons">
-            <!-- Убраны кнопки редактирования и сохранения -->
           </div>
         </div>
         </div>
@@ -119,7 +118,7 @@ export default defineComponent({
           isAddingAssignment: false,
           newAssignmentName: '',
           pendingUpdates: {} as Record<string, Record<string, string>>,
-          userRole: '', // добавлено для роли пользователя
+          userRole: '',
         };
       },
     async created() {
@@ -169,8 +168,6 @@ export default defineComponent({
         console.error('Ошибка загрузки оценок:', error);
       }
     },
-    
-    // Удалены методы редактирования и сохранения оценок
     
     addAssignment() {
       this.isAddingAssignment = true;

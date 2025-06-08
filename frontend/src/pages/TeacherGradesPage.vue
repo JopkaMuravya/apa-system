@@ -78,7 +78,6 @@
       </div>
     </div>
     
-    <!-- Диалог добавления задания -->
     <div v-if="isAddingAssignment" class="modal-backdrop">
       <div class="modal">
         <h3>Добавить новое задание</h3>
@@ -179,7 +178,6 @@ export default defineComponent({
     
     async saveGrades() {
       try {
-        // Сохраняем оценки
         for (const [assignment, grades] of Object.entries(this.pendingUpdates)) {
           await api.post(`/api/grades/${this.groupId}/${this.subjectId}/`, {
             assignment_name: assignment,
@@ -187,7 +185,6 @@ export default defineComponent({
           });
         }
         
-        // Сохраняем комментарий и ссылку
         await api.put(`/api/grades/${this.groupId}/${this.subjectId}/`, {
           comment: this.teacherComment,
           link: this.communicationLink

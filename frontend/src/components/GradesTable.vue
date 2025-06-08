@@ -33,9 +33,9 @@
 import { defineComponent } from 'vue';
 
 interface StudentGrade {
-  student: number; // ID студента
-  full_name: string; // Полное имя студента
-  [assignment: string]: string | number; // Динамические поля с оценками
+  student: number;
+  full_name: string;
+  [assignment: string]: string | number;
 }
 
 export default defineComponent({

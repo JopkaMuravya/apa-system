@@ -363,7 +363,6 @@ class GradeAPI(APIView):
             group = Group.objects.get(id=group_id)
             subject = Subject.objects.get(id=subject_id)
 
-            # Проверяем, что преподаватель ведет этот предмет в группе
             if not GroupSubjectTeacher.objects.filter(
                     group=group,
                     subject=subject,
@@ -371,26 +370,22 @@ class GradeAPI(APIView):
             ).exists():
                 return Response({'detail': 'Преподаватель не ведет этот предмет в группе'}, status=403)
 
-            # Получаем всех студентов группы
             students = User.objects.filter(
                 student_groups__group=group,
                 role='student'
             ).distinct()
 
-            # Получаем все задания по предмету
             assignments = Grade.objects.filter(
                 group=group,
                 subject=subject
             ).values_list('assignment_name', flat=True).distinct()
 
-            # Получаем комментарий преподавателя
             teacher_comment = TeacherComment.objects.filter(
                 teacher=request.user,
                 group=group,
                 subject=subject
             ).first()
 
-            # Формируем данные для таблицы
             grades_data = []
             for student in students:
                 student_grades = {'student': student.id, 'full_name': f"{student.last_name} {student.first_name}"}
@@ -426,7 +421,6 @@ class GradeAPI(APIView):
             subject = Subject.objects.get(id=subject_id)
             assignment_name = serializer.validated_data['assignment_name']
 
-            # Создаем/обновляем оценки
             for student_id, grade_value in serializer.validated_data['grades'].items():
                 student = User.objects.get(id=student_id, role='student')
                 Grade.objects.update_or_create(
@@ -450,7 +444,6 @@ class GradeAPI(APIView):
             group = Group.objects.get(id=group_id)
             subject = Subject.objects.get(id=subject_id)
 
-            # Создаем или обновляем комментарий преподавателя
             teacher_comment, created = TeacherComment.objects.update_or_create(
                 teacher=request.user,
                 group=group,
@@ -481,26 +474,22 @@ class StudentGradeAPI(APIView):
             group = Group.objects.get(id=group_id)
             subject = Subject.objects.get(id=subject_id)
 
-            # Проверяем, что студент состоит в группе
             if not StudentGroup.objects.filter(
                     group=group,
                     student=request.user
             ).exists():
                 return Response({'detail': 'Студент не состоит в этой группе'}, status=403)
 
-            # Получаем все задания по предмету
             assignments = Grade.objects.filter(
                 group=group,
                 subject=subject
             ).values_list('assignment_name', flat=True).distinct()
 
-            # Получаем комментарий преподавателя
             teacher_comment = TeacherComment.objects.filter(
                 group=group,
                 subject=subject
             ).first()
 
-            # Получаем преподавателя, ведущего предмет в группе
             teacher_link = GroupSubjectTeacher.objects.filter(
                 group=group,
                 subject=subject
@@ -511,7 +500,6 @@ class StudentGradeAPI(APIView):
                 teacher = teacher_link.teacher
                 teacher_name = f"{teacher.last_name} {teacher.first_name} {teacher.middle_name or ''}".strip()
 
-            # Формируем данные для таблицы с оценками текущего студента
             grades_data = []
             student_grades = {'student': request.user.id, 'full_name': f"{request.user.last_name} {request.user.first_name}"}
             for assignment in assignments:
