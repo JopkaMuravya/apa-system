@@ -3,7 +3,7 @@
     <SideBar />
     <div class="content">
       <div class="topbar-wrapper">
-        <TopBar />
+        <TopBar @search="search" />
       </div>
 
       <div class="inner-content">
@@ -29,8 +29,14 @@
         </div>
 
         <div class="tab-content">
-          <UsersList v-if="currentTab === 'users'" />
-          <GroupsList v-else-if="currentTab === 'groups'" />
+          <UsersList
+            v-if="currentTab === 'users'"
+            :search-query="searchQuery"
+          />
+          <GroupsList
+            v-else-if="currentTab === 'groups'"
+            :search-query="searchQuery"
+          />
           <SubjectsTeachers v-else />
         </div>
       </div>
@@ -57,7 +63,17 @@ export default defineComponent({
   },
   setup() {
     const currentTab = ref<'users' | 'groups' | 'subjects'>('users')
-    return { currentTab }
+    const searchQuery = ref('')
+
+    const search = (query: string) => {
+      searchQuery.value = query
+    }
+
+    return {
+      currentTab,
+      searchQuery,
+      search
+    }
   }
 })
 </script>

@@ -1,12 +1,13 @@
 <template>
   <div class="top-menu">
     <div class="search-wrapper">
-      <img class="search-icon" :src="SearchIcon" alt="Поиск" />
+      <img class="search-icon" :src="SearchIcon" alt="Поиск" @click="search" />
       <input
         type="text"
         class="search-input"
         v-model="searchQuery"
         placeholder="Поиск..."
+        @keyup.enter="search"
       />
     </div>
     <div class="user">{{ fullName }}</div>
@@ -30,7 +31,8 @@ import { api } from '../boot/axios'
 
 export default defineComponent({
   name: 'TopBar',
-  setup() {
+  emits: ['search'],
+  setup(props, { emit }) {
     const searchQuery = ref('')
     const currentExitIcon = ref(ExitIcon)
     const fullName = ref('')
@@ -69,6 +71,10 @@ export default defineComponent({
       currentExitIcon.value = ExitIcon
     }
 
+    const search = () => {
+      emit('search', searchQuery.value)
+    }
+
     return {
       searchQuery,
       currentExitIcon,
@@ -76,7 +82,8 @@ export default defineComponent({
       fullName,
       login,
       hoverExit,
-      unhoverExit
+      unhoverExit,
+      search
     }
   }
 })
@@ -122,7 +129,8 @@ export default defineComponent({
     transform: translateY(-50%);
     width: 20px;
     height: 20px;
-    pointer-events: none; 
+    /* pointer-events: none; */
+    cursor: pointer;
   }
 
   .user {
@@ -155,4 +163,4 @@ export default defineComponent({
       width: 24px;
       height: 24px;
     }
-</style>  
+</style>

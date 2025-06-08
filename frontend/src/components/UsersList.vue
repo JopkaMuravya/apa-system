@@ -101,7 +101,13 @@ interface User {
 
 export default defineComponent({
   name: 'UsersList',
-  setup() {
+  props: {
+    searchQuery: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const users = ref<User[]>([])
     const selectedRole = ref('')
     const loading = ref(false)
@@ -135,11 +141,23 @@ export default defineComponent({
       }
     }
 
-    const filteredUsers = computed(() =>
-      selectedRole.value
-        ? users.value.filter(user => user.role === selectedRole.value)
-        : users.value
-    )
+    const filteredUsers = computed(() => {
+      let filtered = users.value
+
+      if (selectedRole.value) {
+        filtered = filtered.filter(user => user.role === selectedRole.value)
+      }
+
+      if (props.searchQuery) {
+        const query = props.searchQuery.toLowerCase()
+        filtered = filtered.filter(user =>
+          user.full_name.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query)
+        )
+      }
+
+      return filtered
+    })
 
     const getRoleLabel = (role: string | null) => {
       switch (role) {

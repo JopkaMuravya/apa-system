@@ -50,6 +50,7 @@
     font-weight: bold;
     line-height: 1.5em;
     margin: 0;
+    user-select: none;
   }
 
   .centered_container {
@@ -61,6 +62,7 @@
     font-size: 1.1em;
     line-height: 1.5em;
     margin: 0;
+    user-select: none;
   }
 
   .input_field {
@@ -160,9 +162,50 @@
     font-size: 1rem;
     cursor: pointer;
     transition: all 200ms linear;
+    user-select: none;
   }
 
   .forgot_password:hover{
     color: #888;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .form_wrapper {
+    margin: 20% auto;
+    width: 90%;
+    padding: 15px 10px;
+  }
+
+  .form_wrapper h2 {
+    font-size: 1.3em;
+  }
+
+  .form_wrapper input[type="text"],
+  .form_wrapper [type="email"],
+  .form_wrapper [type="password"] {
+    padding: 8px 10px 9px 45px;
+    height: 40px;
+  font-size: 14px;
+  }
+
+  .form_wrapper .input_field .icon,
+  .form_wrapper .input_field .eye {
+    width: 40px;
+  }
+
+  .form_wrapper .input_field .icon > i,
+  .form_wrapper .input_field .eye > i {
+    padding-top: 10px;
+    font-size: 16px;
+  }
+
+  .form_wrapper input[type="submit"] {
+    height: 40px;
+    font-size: 1em;
+  }
+
+  .form_wrapper .forgot_password {
+    font-size: 0.9rem;
   }
 }

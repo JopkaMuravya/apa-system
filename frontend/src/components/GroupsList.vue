@@ -2,7 +2,7 @@
   <aside class="group-panel">
     <div class="group-container">
       <button
-        v-for="group in groups"
+        v-for="group in filteredGroups"
         :key="group.id"
         class="group-card"
         @click="openGroup(group)"
@@ -27,13 +27,19 @@
 import SubjectIcon from '../assets/icons/programs.png';
 import AddIcon from '../assets/icons/add_blue.png';
 import AddIcon2 from '../assets/icons/add_red.png';
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
 
 export default {
   name: 'GroupList',
-  setup() {
+  props: {
+    searchQuery: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const router = useRouter()
     const groups = ref([])
     const currentAddIcon = ref(AddIcon)
@@ -76,6 +82,17 @@ export default {
       currentAddIcon.value = AddIcon
     }
 
+    const filteredGroups = computed(() => {
+      let filtered = groups.value
+
+      if (props.searchQuery) {
+        const query = props.searchQuery.toLowerCase()
+        filtered = filtered.filter(group => group.name.toLowerCase().includes(query))
+      }
+
+      return filtered
+    })
+
     onMounted(fetchGroups)
 
     return {
@@ -85,7 +102,8 @@ export default {
       unhoverAdd,
       createGroup,
       openGroup,
-      SubjectIcon
+      SubjectIcon,
+      filteredGroups
     }
   }
 }
