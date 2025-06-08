@@ -29,16 +29,8 @@
   </aside>
 </template>
 
-<<<<<<< HEAD
-<script>
-import SubjectIcon from '../assets/icons/programs.png';
-import AddIcon from '../assets/icons/add_blue.png';
-import AddIcon2 from '../assets/icons/add_red.png';
-import { ref, onMounted, computed } from 'vue'
-=======
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
->>>>>>> origin/main
+import { defineComponent, ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
 
@@ -54,18 +46,14 @@ interface Group {
 
 export default defineComponent({
   name: 'GroupList',
-<<<<<<< HEAD
   props: {
     searchQuery: {
       type: String,
       default: ''
     }
   },
-  setup(props) {
-=======
   components: { CreateGroupModal },
-  setup() {
->>>>>>> origin/main
+  setup(props) {
     const router = useRouter()
     const groups = ref<Group[]>([])
     const currentAddIcon = ref(AddIcon)
@@ -121,14 +109,10 @@ export default defineComponent({
       hoverAdd,
       unhoverAdd,
       openGroup,
-<<<<<<< HEAD
-      SubjectIcon,
-      filteredGroups
-=======
       showCreateModal,
       handleGroupCreated,
-      SubjectIcon
->>>>>>> origin/main
+      SubjectIcon,
+      filteredGroups
     }
   }
 })

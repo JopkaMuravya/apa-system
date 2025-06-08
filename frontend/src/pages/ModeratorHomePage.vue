@@ -37,7 +37,10 @@
             v-else-if="currentTab === 'groups'"
             :search-query="searchQuery"
           />
-          <SubjectsTeachers v-else />
+          <SubjectsTeachers
+            v-else
+            :search-query="searchQuery"
+          />
         </div>
       </div>
     </div>

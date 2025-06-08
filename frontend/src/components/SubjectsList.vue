@@ -1,7 +1,7 @@
 <template>
   <aside class="Teacher-main">
     <div v-if="!pageStore.currentSubject" class="subjects-container">
-      <button v-for="subject in subjects" :key="subject.id" class="subjects-info" @click="showGroups(subject)">
+      <button v-for="subject in filteredSubjects" :key="subject.id" class="subjects-info" @click="showGroups(subject)">
         <img class="subject-icon" :src="SubjectIcon" alt="Subject" />
         <p class="subject">{{ subject.name }}</p>
       </button>
@@ -21,8 +21,14 @@
     import AddIcon2 from '../assets/icons/add_red.png';
     import { api } from '../boot/axios';
     import {useRouter} from 'vue-router';
-  
+
   export default {
+    props: {
+      searchQuery: {
+        type: String,
+        default: ''
+      }
+    },
     data() {
       return {
         SubjectIcon,
@@ -87,9 +93,22 @@
         });
       },
     },
+    computed: {
+      filteredSubjects() {
+        let filtered = this.subjects
+
+        if (this.searchQuery) {
+          const query = this.searchQuery.toLowerCase()
+
+          filtered = filtered.filter(subject => subject.name.toLowerCase().includes(query))
+        }
+
+        return filtered
+      }
+    },
   };
   </script>
-  
+
   <style scoped>
     .Teacher-main {
       display: flex;
@@ -153,7 +172,7 @@
 
     .groups-info:hover {
       transform: scale(1.03);
-      box-shadow: 0 25px 25px rgba(0, 0, 0, 0.15); 
+      box-shadow: 0 25px 25px rgba(0, 0, 0, 0.15);
     }
 
     .subject {
@@ -167,7 +186,7 @@
     .subject-icon {
       width: 40px;
       height: 40px;
-    
+
     }
 
     .new-subject-button {
@@ -209,4 +228,4 @@
       height: 26px;
     }
 
-  </style>  
+  </style>

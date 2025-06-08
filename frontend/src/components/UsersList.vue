@@ -315,6 +315,9 @@ th {
 td {
   padding: 12px 15px;
   text-align: left;
+}
+
+tr {
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -345,7 +348,6 @@ td.action-buttons {
   height: 30px;
   padding: 4px;
   cursor: pointer;
-  transition: transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;

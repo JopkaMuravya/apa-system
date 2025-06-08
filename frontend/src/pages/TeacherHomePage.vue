@@ -2,7 +2,7 @@
   <div class="main-page">
     <SideBar />
     <div class="content">
-      <TopBar />
+      <TopBar @search="search" />
       <div class="task-list-wrapper">
         <SubjectsList :searchQuery="searchQuery" />
       </div>
@@ -36,7 +36,12 @@
         },
         currentPageTitle: this.currentPageTitle
       };
-    }
+    },
+    methods: {
+      search(query: string) {
+        this.searchQuery = query;
+      }
+    },
   });
 </script>
 
@@ -77,4 +82,4 @@
   .task-list-wrapper::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.8);
   }
-</style>  
+</style>
