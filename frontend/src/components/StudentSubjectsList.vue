@@ -1,7 +1,7 @@
 <template>
   <aside class="Student-main">
     <div class="subjects-container">
-      <button v-for="subject in subjects" :key="subject.id" class="subjects-info" @click="goToSubjectDetail(subject.id)">
+      <button v-for="subject in filteredSubjects" :key="subject.id" class="subjects-info" @click="goToSubjectDetail(subject.id)">
         <img class="subject-icon" :src="subjectIcon" alt="Subject" />
         <p class="subject">{{ subject.name }}</p>
       </button>
@@ -12,14 +12,20 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import subjectIcon from '../assets/icons/programs.png';
 import { api } from '../boot/axios';
 
 export default {
   name: 'StudentSubjectsList',
-  setup() {
+  props: {
+    searchQuery: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const subjects = ref([]);
     const loading = ref(false);
     const error = ref(null);
@@ -53,24 +59,35 @@ export default {
     const goToSubjectDetail = (id) => {
       const subject = subjects.value.find(s => s.id === id);
       if (groupId.value) {
-        router.push({ 
-          name: 'student-grades', 
-          query: { 
-            subjectId: id, 
-            subjectName: subject ? subject.name : '', 
-            groupId: groupId.value 
-          } 
+        router.push({
+          name: 'student-grades',
+          query: {
+            subjectId: id,
+            subjectName: subject ? subject.name : '',
+            groupId: groupId.value
+          }
         });
       } else {
-        router.push({ 
-          name: 'student-grades', 
-          query: { 
-            subjectId: id, 
-            subjectName: subject ? subject.name : '' 
-          } 
+        router.push({
+          name: 'student-grades',
+          query: {
+            subjectId: id,
+            subjectName: subject ? subject.name : ''
+          }
         });
       }
     };
+
+    const filteredSubjects = computed(() => {
+      let filtered = subjects.value
+
+      if (props.searchQuery) {
+        const query = props.searchQuery.toLowerCase()
+        filtered = filtered.filter(subject => subject.name.toLowerCase().includes(query))
+      }
+
+      return filtered
+    })
 
     onMounted(() => {
       fetchSubjects();
@@ -83,6 +100,7 @@ export default {
       error,
       subjectIcon,
       goToSubjectDetail,
+      filteredSubjects,
     };
   },
 };

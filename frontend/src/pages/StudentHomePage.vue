@@ -2,9 +2,9 @@
   <div class="main-page">
     <SideBar />
     <div class="content">
-      <TopBar />
+      <TopBar @search="search" />
       <div class="task-list-wrapper">
-        <StudentSubjectsList />
+        <StudentSubjectsList :searchQuery="searchQuery" />
       </div>
     </div>
   </div>
@@ -15,6 +15,7 @@ import { defineComponent } from 'vue';
 import SideBar from '../components/SideBar.vue';
 import TopBar from '../components/TopBar.vue';
 import StudentSubjectsList from '../components/StudentSubjectsList.vue';
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
   name: 'StudentHomePage',
@@ -26,7 +27,15 @@ export default defineComponent({
   data() {
     return {
       currentPageTitle: 'Главная',
+      searchQuery: ''
     };
+  },
+  created() {
+    const route = useRoute();
+    if (route.query.search) {
+      this.searchQuery = route.query.search as string;
+      this.search(this.searchQuery);
+    }
   },
   provide() {
     return {
@@ -35,6 +44,11 @@ export default defineComponent({
       },
       currentPageTitle: this.currentPageTitle,
     };
+  },
+  methods: {
+    search(query: string) {
+      this.searchQuery = query;
+    }
   },
 });
 </script>

@@ -31,6 +31,7 @@ import ExitIcon from '../assets/icons/exit_blue.png'
 import ExitIcon2 from '../assets/icons/exit_red.png'
 import SearchIcon from '../assets/icons/search.png'
 import { api } from '../boot/axios'
+import { useRoute, useRouter } from 'vue-router';
 
 interface Group {
   id: number
@@ -46,6 +47,8 @@ export default defineComponent({
     const fullName = ref('')
     const group = ref<Group | null>(null)
     const role = ref('')
+    const route = useRoute();
+    const router = useRouter();
 
     const fetchCurrentUser = async () => {
       try {
@@ -68,6 +71,10 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      if (route.query.search) {
+        searchQuery.value = route.query.search.toString();
+      }
+
       fetchCurrentUser()
     })
 
@@ -86,7 +93,26 @@ export default defineComponent({
     }
 
     const search = () => {
-      emit('search', searchQuery.value)
+      let homePath = ''
+      switch (role.value) {
+        case 'student':
+          homePath = '/student'
+          break
+        case 'teacher':
+          homePath = '/teacher'
+          break
+        case 'moderator':
+          homePath = '/moderator'
+          break
+      }
+      if (route.path !== homePath) {
+        router.push({
+          path: homePath,
+          query: { search: searchQuery.value }
+        })
+      } else {
+        emit('search', searchQuery.value)
+      }
     }
 
     return {

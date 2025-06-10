@@ -54,6 +54,7 @@ import TopBar from '../components/TopBar.vue'
 import UsersList from '../components/UsersList.vue'
 import GroupsList from '../components/GroupsList.vue'
 import SubjectsTeachers from '../components/SubjectsTeachers.vue'
+import { useRoute } from 'vue-router'
 
 export default defineComponent({
   name: 'ModeratorHomePage',
@@ -77,7 +78,14 @@ export default defineComponent({
       searchQuery,
       search
     }
-  }
+  },
+  created() {
+    const route = useRoute();
+    if (route.query.search) {
+      this.searchQuery = route.query.search as string;
+      this.search(this.searchQuery);
+    }
+  },
 })
 </script>
 
