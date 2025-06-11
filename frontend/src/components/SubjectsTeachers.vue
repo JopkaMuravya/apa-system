@@ -234,11 +234,12 @@ th {
 td {
   padding: 12px 15px;
   text-align: left;
-  vertical-align: top
+  vertical-align: top;
+  border: 1px solid #e0e0e0;
 }
 
 tr {
-  border-bottom: 1px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
 }
 
 tr:hover {
@@ -250,6 +251,7 @@ td.action-buttons {
   width: 90px;
   text-align: center;
   white-space: nowrap;
+  border: none;
 }
 
 .action-buttons {

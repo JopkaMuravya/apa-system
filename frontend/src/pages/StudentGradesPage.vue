@@ -12,7 +12,7 @@
             </div>
           </div>
 
-          <GradesTable 
+          <GradesList
             :assignments="assignments"
             :grades="grades"
             :is-editing="false"
@@ -28,9 +28,9 @@
 
           <div class="teacher-comment">
             <h3 class="section-title">Комментарии преподавателя:</h3>
-            <textarea 
+            <textarea
               v-model="teacherComment"
-              class="comment-textarea" 
+              class="comment-textarea"
               placeholder="Введите комментарии для студентов..."
               readonly
             ></textarea>
@@ -40,10 +40,10 @@
             <h3 class="section-title">Ссылка для связи:</h3>
             <div class="link-container">
               <i class="fa-solid fa-link link-icon"></i>
-              <input 
+              <input
                 v-model="communicationLink"
-                type="text" 
-                class="link-input" 
+                type="text"
+                class="link-input"
                 placeholder="Вставьте ссылку на чат"
                 readonly
               >
@@ -63,14 +63,14 @@
         </div>
       </div>
     </div>
-    
-    
+
+
     <div v-if="isAddingAssignment" class="modal-backdrop">
       <div class="modal">
         <h3>Добавить новое задание</h3>
-        <input 
+        <input
           v-model="newAssignmentName"
-          type="text" 
+          type="text"
           placeholder="Название задания"
           class="modal-input"
         >
@@ -87,8 +87,8 @@
 import { defineComponent } from 'vue';
 import SideBar from '../components/SideBar.vue';
 import TopBar from '../components/TopBar.vue';
-import GradesTable from '../components/GradesTable.vue';
 import { api } from '../boot/axios';
+import GradesList from '../components/GradesList.vue';
 
 interface StudentGrade {
   student: number;
@@ -101,7 +101,8 @@ export default defineComponent({
   components: {
     SideBar,
     TopBar,
-    GradesTable,
+    GradesList
+
   },
       data() {
         return {
@@ -129,7 +130,7 @@ export default defineComponent({
       this.groupName = this.$route.query.groupName as string;
       this.subjectId = parseInt(this.$route.query.subjectId as string);
       this.subjectName = this.$route.query.subjectName as string;
-      
+
       await this.loadGrades();
     },
   methods: {
@@ -168,11 +169,11 @@ export default defineComponent({
         console.error('Ошибка загрузки оценок:', error);
       }
     },
-    
+
     addAssignment() {
       this.isAddingAssignment = true;
     },
-    
+
     confirmAddAssignment() {
       if (this.newAssignmentName.trim()) {
         this.assignments.push(this.newAssignmentName.trim());
@@ -180,7 +181,7 @@ export default defineComponent({
         this.newAssignmentName = '';
       }
     },
-    
+
     openLink() {
       if (this.communicationLink) {
         window.open(this.communicationLink, '_blank');

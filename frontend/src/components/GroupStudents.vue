@@ -274,13 +274,16 @@ export default defineComponent({
   text-align: left;
   font-weight: bold;
   position: relative;
-  border: none;
 }
 
 .students-table td {
   padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
+}
+
+.students-table tr {
+  border: 1px solid #e0e0e0;
 }
 
 .students-table tr:hover {
@@ -292,6 +295,7 @@ td.action-buttons {
   width: 90px;
   text-align: center;
   white-space: nowrap;
+  border: none;
 }
 
 .action-buttons {
