@@ -15,12 +15,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import HomeIcon from '../assets/icons/home.png'
-import BackIcon from '../assets/icons/back_blue.png'
-import BackIcon2 from '../assets/icons/back_red.png'
-import FEFUIcon from '../assets/icons/fefu.png'
+  import { defineComponent, computed, ref } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  const HomeIcon = new URL('../assets/icons/home.png', import.meta.url).href;
+  const BackIcon = new URL('../assets/icons/back_blue.png', import.meta.url).href;
+  const BackIcon2 = new URL('../assets/icons/back_red.png', import.meta.url).href;
+  const FEFUIcon = new URL('../assets/icons/fefu.png', import.meta.url).href;
 
 export default defineComponent({
   name: 'SidebarMenu',

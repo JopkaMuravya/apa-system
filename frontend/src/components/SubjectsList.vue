@@ -16,9 +16,9 @@
 
   <script>
     import { usePageStore } from '../stores/page';
-    import SubjectIcon from '../assets/icons/programs.png';
-    import AddIcon from '../assets/icons/add_blue.png';
-    import AddIcon2 from '../assets/icons/add_red.png';
+    const SubjectIcon = new URL('../assets/icons/programs.png', import.meta.url).href;
+    const AddIcon = new URL('../assets/icons/add_blue.png', import.meta.url).href;
+    const AddIcon2 = new URL('../assets/icons/add_red.png', import.meta.url).href;
     import { api } from '../boot/axios';
     import {useRouter} from 'vue-router';
   

@@ -26,10 +26,11 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
-import ExitIcon from '../assets/icons/exit_blue.png'
-import ExitIcon2 from '../assets/icons/exit_red.png'
-import SearchIcon from '../assets/icons/search.png'
+const ExitIcon = new URL('../assets/icons/exit_blue.png', import.meta.url).href
+const ExitIcon2 = new URL('../assets/icons/exit_red.png', import.meta.url).href
+const SearchIcon = new URL('../assets/icons/search.png', import.meta.url).href
 import { api } from '../boot/axios'
+import { useRouter } from 'vue-router'
 
 interface Group {
   id: number
@@ -39,6 +40,7 @@ interface Group {
 export default defineComponent({
   name: 'TopBar',
   setup() {
+    const router = useRouter()
     const searchQuery = ref('')
     const currentExitIcon = ref(ExitIcon)
     const fullName = ref('')
@@ -72,7 +74,7 @@ export default defineComponent({
     const login = () => {
       localStorage.removeItem('user')
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      router.push('/login')
     }
 
     const hoverExit = () => {

@@ -35,18 +35,18 @@
             <td class="action-buttons">
               <template v-if="editingId === entry.id">
                 <button class="save-button" @click="saveEdit(entry)">
-                  <img src="../assets/icons/accept.png" alt="Сохранить" />
+                  <img :src="AcceptIcon" alt="Сохранить" />
                 </button>
                 <button class="cancel-button" @click="cancelEdit">
-                  <img src="../assets/icons/cancel.png" alt="Отменить" />
+                  <img :src="CancelIcon" alt="Отменить" />
                 </button>
               </template>
               <template v-else>
                 <button class="edit-button" @click="startEdit(entry)">
-                  <img src="../assets/icons/edit.png" alt="Редактировать" />
+                  <img :src="EditIcon" alt="Редактировать" />
                 </button>
                 <button class="delete-button" @click="openDeleteModal(entry)">
-                  <img src="../assets/icons/delete.png" alt="Удалить" />
+                  <img :src="DeleteIcon" alt="Удалить" />
                 </button>
               </template>
             </td>
@@ -93,6 +93,11 @@ import { useRoute } from 'vue-router'
 import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
 import AddGroupSubjectModal from 'components/AddGroupSubjectModal.vue'
+
+const DeleteIcon = new URL('../assets/icons/delete.png', import.meta.url).href
+const EditIcon = new URL('../assets/icons/edit.png', import.meta.url).href
+const AcceptIcon = new URL('../assets/icons/accept.png', import.meta.url).href
+const CancelIcon = new URL('../assets/icons/cancel.png', import.meta.url).href
 
 interface Entry {
   id: number
@@ -236,7 +241,11 @@ export default defineComponent({
       showErrorModal,
       modalErrorMessage,
       showAddModal,
-      handleSubjectAdded
+      handleSubjectAdded,
+      DeleteIcon,
+      EditIcon,
+      AcceptIcon,
+      CancelIcon
     }
   }
 })

@@ -84,10 +84,10 @@ import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
 
 import AddStudentModal from './AddStudentModal.vue'
-import DeleteIcon from '../assets/icons/delete.png'
-import EditIcon from '../assets/icons/edit.png'
-import AcceptIcon from '../assets/icons/accept.png'
-import CancelIcon from '../assets/icons/cancel.png'
+const DeleteIcon = new URL('../assets/icons/delete.png', import.meta.url).href
+const EditIcon = new URL('../assets/icons/edit.png', import.meta.url).href
+const AcceptIcon = new URL('../assets/icons/accept.png', import.meta.url).href
+const CancelIcon = new URL('../assets/icons/cancel.png', import.meta.url).href
 
 interface Student {
   id: number

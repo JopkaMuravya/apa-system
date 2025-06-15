@@ -14,7 +14,7 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import subjectIcon from '../assets/icons/programs.png';
+const subjectIcon = new URL('../assets/icons/programs.png', import.meta.url).href;
 import { api } from '../boot/axios';
 
 export default {

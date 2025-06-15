@@ -82,8 +82,8 @@ import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
 import AddSubjectModal from './AddSubjectModal.vue'
 import EditSubjectModal from './EditSubjectModal.vue'
-import EditIcon from '../assets/icons/edit.png'
-import DeleteIcon from '../assets/icons/delete.png'
+const EditIcon = new URL('../assets/icons/edit.png', import.meta.url).href
+const DeleteIcon = new URL('../assets/icons/delete.png', import.meta.url).href
 
 interface Subject {
   id: number

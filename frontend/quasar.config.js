@@ -49,6 +49,7 @@ module.exports = configure(function (/* ctx */) {
     build: {
       publicPath: './',
       vueRouterMode: 'hash',
+      assetsInlineLimit: 0,
 
       preloadChunks: false,
       extractCSS: true,
@@ -61,7 +62,7 @@ module.exports = configure(function (/* ctx */) {
         viteConf.build.rollupOptions.output.inlineDynamicImports = true; 
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
