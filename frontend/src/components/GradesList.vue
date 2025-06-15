@@ -223,4 +223,38 @@ input {
   background-color: #527cbf;
 }
 
+@media (max-width: 480px) {
+  .error-modal {
+    min-width: 250px;
+    padding: 20px;
+  }
+
+  .error-modal h2 {
+    font-size: 20px;
+  }
+
+  .error-modal button {
+    padding: 5px 12px;
+  }
+
+  .students-table th,
+  .students-table td {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .delete-button,
+  .edit-button,
+  .save-button,
+  .cancel-button {
+    width: 22px;
+    height: 22px;
+  }
+}
+
 </style>

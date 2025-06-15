@@ -12,7 +12,7 @@
             </div>
           </div>
 
-          <GradesTable 
+          <GradesTable
             :assignments="assignments"
             :grades="grades"
             :is-editing="isEditing"
@@ -29,9 +29,9 @@
 
           <div class="teacher-comment">
             <h3 class="section-title">Комментарии преподавателя:</h3>
-            <textarea 
+            <textarea
               v-model="teacherComment"
-              class="comment-textarea" 
+              class="comment-textarea"
               placeholder="Введите комментарии для студентов..."
             ></textarea>
           </div>
@@ -39,13 +39,15 @@
           <div class="link-section">
             <h3 class="section-title">Ссылка для связи:</h3>
             <div class="link-container">
-              <i class="fa-solid fa-link link-icon"></i>
-              <input 
-                v-model="communicationLink"
-                type="text" 
-                class="link-input" 
-                placeholder="Вставьте ссылку на чат"
-              >
+              <div class="link-input-icon">
+                <i class="fa-solid fa-link link-icon"></i>
+                <input
+                  v-model="communicationLink"
+                  type="text"
+                  class="link-input"
+                  placeholder="Вставьте ссылку на чат"
+                >
+              </div>
               <button class="go-button" @click="openLink">Перейти</button>
             </div>
           </div>
@@ -57,15 +59,15 @@
             </div>
 
             <div class="editing-buttons">
-              <button 
-                class="edit-button" 
+              <button
+                class="edit-button"
                 :disabled="isEditing"
                 @click="startEditing"
               >
                 <i class="fa-solid fa-pen"></i>
                 Редактировать
               </button>
-              <button 
+              <button
                 class="save-button"
                 @click="saveGrades"
               >
@@ -77,13 +79,13 @@
         </div>
       </div>
     </div>
-    
+
     <div v-if="isAddingAssignment" class="modal-backdrop">
       <div class="modal">
         <h3>Добавить новое задание</h3>
-        <input 
+        <input
           v-model="newAssignmentName"
-          type="text" 
+          type="text"
           placeholder="Название задания"
           class="modal-input"
         >
@@ -135,12 +137,12 @@ export default defineComponent({
   },
   async created() {
     await this.fetchTeacherName();
-    
+
     this.groupId = parseInt(this.$route.query.groupId as string);
     this.groupName = this.$route.query.groupName as string;
     this.subjectId = parseInt(this.$route.query.subjectId as string);
     this.subjectName = this.$route.query.subjectName as string;
-    
+
     await this.loadGrades();
   },
   methods: {
@@ -164,18 +166,18 @@ export default defineComponent({
         console.error('Ошибка загрузки оценок:', error);
       }
     },
-    
+
     startEditing() {
       this.isEditing = true;
     },
-    
+
     handleGradeUpdate({ studentId, assignment, value }: { studentId: number; assignment: string; value: string }) {
       if (!this.pendingUpdates[assignment]) {
         this.pendingUpdates[assignment] = {};
       }
       this.pendingUpdates[assignment][studentId] = value;
     },
-    
+
     async saveGrades() {
       try {
         for (const [assignment, grades] of Object.entries(this.pendingUpdates)) {
@@ -184,12 +186,12 @@ export default defineComponent({
             grades
           });
         }
-        
+
         await api.put(`/api/grades/${this.groupId}/${this.subjectId}/`, {
           comment: this.teacherComment,
           link: this.communicationLink
         });
-        
+
         this.isEditing = false;
         this.pendingUpdates = {};
         await this.loadGrades();
@@ -197,11 +199,11 @@ export default defineComponent({
         console.error('Ошибка сохранения:', error);
       }
     },
-    
+
     addAssignment() {
       this.isAddingAssignment = true;
     },
-    
+
     confirmAddAssignment() {
       if (this.newAssignmentName.trim()) {
         this.assignments.push(this.newAssignmentName.trim());
@@ -209,7 +211,7 @@ export default defineComponent({
         this.newAssignmentName = '';
       }
     },
-    
+
     openLink() {
       if (this.communicationLink) {
         window.open(this.communicationLink, '_blank');

@@ -39,14 +39,16 @@
           <div class="link-section">
             <h3 class="section-title">Ссылка для связи:</h3>
             <div class="link-container">
-              <i class="fa-solid fa-link link-icon"></i>
-              <input
-                v-model="communicationLink"
-                type="text"
-                class="link-input"
-                placeholder="Вставьте ссылку на чат"
-                readonly
-              >
+              <div class="link-input-icon">
+                <i class="fa-solid fa-link link-icon"></i>
+                <input
+                  v-model="communicationLink"
+                  type="text"
+                  class="link-input"
+                  placeholder="Вставьте ссылку на чат"
+                  readonly
+                >
+              </div>
               <button class="go-button" @click="openLink">Перейти</button>
             </div>
           </div>

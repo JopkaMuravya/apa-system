@@ -147,10 +147,10 @@
       transform: scale(1);
     }
 
-      .subjects-info:hover {
-        transform: scale(1.03);
-        box-shadow: 0 25px 25px rgba(0, 0, 0, 0.15);
-      }
+    .subjects-info:hover {
+      transform: scale(1.03);
+      box-shadow: 0 25px 25px rgba(0, 0, 0, 0.15);
+    }
 
     .groups-info {
       background: rgba(0, 103, 177, 0.1);
@@ -226,6 +226,18 @@
     .new-subject-button img, .new-group-button img {
       width: 26px;
       height: 26px;
+    }
+
+    @media (max-width: 480px) {
+      .subjects-info, .groups-info {
+        width: 100%;
+        max-width: 240px;
+        height: 140px;
+      }
+
+      .subject {
+        font-size: 15px;
+      }
     }
 
   </style>

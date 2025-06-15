@@ -171,4 +171,16 @@ export default {
   color: red;
   margin-top: 10px;
 }
+
+@media (max-width: 480px) {
+  .subjects-info {
+    width: 100%;
+    max-width: 240px;
+    height: 140px;
+  }
+
+  .subject {
+    font-size: 15px;
+  }
+}
 </style>
