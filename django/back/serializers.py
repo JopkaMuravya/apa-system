@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Group, Subject, StudentGroup, GroupSubjectTeacher
+from .models import User, Group, Subject, GroupSubjectTeacher, Grade, TeacherComment
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -60,7 +60,21 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
 
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+from .models import Group
+
 class GroupSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        max_length=100,
+        validators=[
+            UniqueValidator(
+                queryset=Group.objects.all(),
+                message='Группа с таким названием уже существует.'
+            )
+        ]
+    )
+
     class Meta:
         model = Group
         fields = ['id', 'name']
@@ -75,7 +89,15 @@ class GroupDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'subjects', 'students']
 
     def get_subjects(self, group):
-        return [{'id': s.id, 'name': s.name} for s in Subject.objects.filter(subject_groups__group=group)]
+        links = GroupSubjectTeacher.objects.filter(group=group).select_related('subject', 'teacher')
+        return [
+            {
+                'id': link.subject.id,
+                'name': link.subject.name,
+                'teacher': f"{link.teacher.last_name} {link.teacher.first_name} {link.teacher.middle_name or ''}".strip()
+            }
+            for link in links
+        ]
 
     def get_students(self, group):
         return [
@@ -88,6 +110,12 @@ class GroupDetailSerializer(serializers.ModelSerializer):
         ]
 
 
+class SubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = ['id', 'name']
+
+        
 class GroupSubjectTeacherSerializer(serializers.ModelSerializer):
     group_name = serializers.CharField(source='group.name', read_only=True)
     subject_name = serializers.CharField(source='subject.name', read_only=True)
@@ -117,3 +145,21 @@ class SubjectWithTeachersSerializer(serializers.ModelSerializer):
             }
             for link in links
         ]
+
+
+class GradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = ['id', 'student', 'subject', 'group', 'assignment_name', 'value']
+        read_only_fields = ['id']
+
+
+class GradeAssignmentSerializer(serializers.Serializer):
+    assignment_name = serializers.CharField(max_length=255)
+    grades = serializers.DictField(child=serializers.CharField(max_length=10))
+
+
+class TeacherCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeacherComment
+        fields = ['comment', 'link']

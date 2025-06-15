@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     User, Group, Subject,
-    StudentGroup, GroupSubject, TeacherSubject,
+    StudentGroup, TeacherSubject,
     GroupSubjectTeacher 
 )
 
@@ -30,13 +30,6 @@ class StudentGroupAdmin(admin.ModelAdmin):
     list_display = ('student', 'group')
     search_fields = ('student__email', 'group__name')
     list_filter = ('group',)
-
-
-@admin.register(GroupSubject)
-class GroupSubjectAdmin(admin.ModelAdmin):
-    list_display = ('group', 'subject')
-    search_fields = ('group__name', 'subject__name')
-    list_filter = ('group', 'subject')
 
 
 @admin.register(TeacherSubject)

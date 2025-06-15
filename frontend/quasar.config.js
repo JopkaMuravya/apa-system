@@ -14,6 +14,7 @@ const { configure } = require('quasar/wrappers');
 
 module.exports = configure(function (/* ctx */) {
   return {
+    preFetch: false,
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
 
@@ -46,12 +47,22 @@ module.exports = configure(function (/* ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
-      target: {
-        browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
-        node: 'node20'
+      publicPath: './',
+      vueRouterMode: 'hash',
+      assetsInlineLimit: 0,
+
+      preloadChunks: false,
+      extractCSS: true,
+
+      extendViteConf(viteConf) {
+        viteConf.base = './';
+        viteConf.build = viteConf.build || {};
+        viteConf.build.rollupOptions = viteConf.build.rollupOptions || {};
+        viteConf.build.rollupOptions.output = viteConf.build.rollupOptions.output || {};
+        viteConf.build.rollupOptions.output.inlineDynamicImports = true; 
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
