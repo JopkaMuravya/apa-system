@@ -11,7 +11,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(student, index) in grades" :key="student.student">
+        <tr v-for="(student, index) in localGrades" :key="student.student">
           <td>{{ index + 1 }}</td>
           <td>{{ student.full_name }}</td>
           <td 
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, watch, ref } from 'vue';
 
 interface StudentGrade {
   student: number;
@@ -55,9 +55,29 @@ export default defineComponent({
     }
   },
   emits: ['update-grade'],
+
+  setup(props) {
+    const localGrades = ref<StudentGrade[]>([]);
+    
+    watch(() => props.grades, (newGrades) => {
+      localGrades.value = JSON.parse(JSON.stringify(newGrades));
+    }, { immediate: true });
+    
+    return {
+      localGrades
+    };
+  },
+
   methods: {
     onGradeChange(studentId: number, assignment: string, event: Event) {
+      if (!this.isEditing) return;
       const value = (event.target as HTMLElement).innerText.trim();
+
+      const student = this.localGrades.find(s => s.student === studentId);
+      if (student) {
+        student[assignment] = value;
+      }
+
       this.$emit('update-grade', { 
         studentId, 
         assignment, 

@@ -21,7 +21,11 @@
           />
 
           <div class="add-column-container">
-            <button class="add-column-button" @click="isAddingAssignment = true">
+            <button
+              class="add-column-button"
+              @click="isAddingAssignment = true"
+              :disabled="!isEditing"
+            >
               <i class="fa-solid fa-plus"></i>
               Добавить колонку
             </button>
@@ -33,6 +37,7 @@
               v-model="teacherComment"
               class="comment-textarea" 
               placeholder="Введите комментарии для студентов..."
+              :disabled="!isEditing"
             ></textarea>
           </div>
 
@@ -45,6 +50,7 @@
                 type="text" 
                 class="link-input" 
                 placeholder="Вставьте ссылку на чат"
+                :disabled="!isEditing"
               >
               <button class="go-button" @click="openLink">Перейти</button>
             </div>
@@ -59,14 +65,15 @@
             <div class="editing-buttons">
               <button 
                 class="edit-button" 
-                :disabled="isEditing"
-                @click="startEditing"
+                :class="{ 'cancel-button': isEditing }"
+                @click="toggleEditing"
               >
-                <i class="fa-solid fa-pen"></i>
-                Редактировать
+                <i class="fa-solid" :class="isEditing ? 'fa-xmark' : 'fa-pen'"></i>
+                {{ isEditing ? 'Отменить' : 'Редактировать' }}
               </button>
               <button 
                 class="save-button"
+                :disabled="!hasChanges || !isEditing"
                 @click="saveGrades"
               >
                 <i class="fa-solid fa-bookmark"></i>
@@ -131,6 +138,10 @@ export default defineComponent({
       isAddingAssignment: false,
       newAssignmentName: '',
       pendingUpdates: {} as Record<string, Record<string, string>>,
+      backupGrades: [] as StudentGrade[],
+      backupAssignments: [] as string[],
+      backupComment: '',
+      backupLink: ''
     };
   },
   async created() {
@@ -166,7 +177,28 @@ export default defineComponent({
     },
     
     startEditing() {
+      this.backupGrades = JSON.parse(JSON.stringify(this.grades));
+      this.backupAssignments = [...this.assignments];
+      this.backupComment = this.teacherComment;
+      this.backupLink = this.communicationLink;
       this.isEditing = true;
+    },
+
+    cancelEditing() {
+      this.grades = JSON.parse(JSON.stringify(this.backupGrades));
+      this.assignments = [...this.backupAssignments];
+      this.teacherComment = this.backupComment;
+      this.communicationLink = this.backupLink;
+      this.isEditing = false;
+      this.pendingUpdates = {};
+    },
+
+    toggleEditing() {
+      if (this.isEditing) {
+        this.cancelEditing();
+      } else {
+        this.startEditing();
+      }
     },
     
     handleGradeUpdate({ studentId, assignment, value }: { studentId: number; assignment: string; value: string }) {
@@ -177,6 +209,8 @@ export default defineComponent({
     },
     
     async saveGrades() {
+      if (!this.hasChanges) return;
+
       try {
         for (const [assignment, grades] of Object.entries(this.pendingUpdates)) {
           await api.post(`/api/grades/${this.groupId}/${this.subjectId}/`, {
@@ -203,6 +237,8 @@ export default defineComponent({
     },
     
     confirmAddAssignment() {
+      if (!this.isEditing) return;
+      
       if (this.newAssignmentName.trim()) {
         this.assignments.push(this.newAssignmentName.trim());
         this.isAddingAssignment = false;
@@ -216,6 +252,17 @@ export default defineComponent({
       }
     }
   },
+
+  computed: {
+    hasChanges() {
+      const gradesChanged = JSON.stringify(this.grades) !== JSON.stringify(this.backupGrades);
+      const assignmentsChanged = JSON.stringify(this.assignments) !== JSON.stringify(this.backupAssignments);
+      const commentChanged = this.teacherComment !== this.backupComment;
+      const linkChanged = this.communicationLink !== this.backupLink;
+      const hasPendingUpdates = Object.keys(this.pendingUpdates).length > 0;
+      return gradesChanged || assignmentsChanged || commentChanged || linkChanged || hasPendingUpdates;
+    }
+  }
 });
 </script>
 
