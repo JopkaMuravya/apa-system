@@ -12,13 +12,11 @@
             </div>
           </div>
 
-          <GradesTable 
-            :assignments="assignments"
-            :grades="grades"
-            :is-editing="isEditing"
-            @update-grade="handleGradeUpdate"
-            @add-assignment="addAssignment"
-          />
+          <GradesTable :assignments="assignments"
+                       :grades="grades"
+                       :is-editing="isEditing"
+                       @update-grade="handleGradeUpdate"
+                       @add-assignment="addAssignment" />
 
           <div class="add-column-container">
             <button class="add-column-button" @click="isAddingAssignment = true">
@@ -29,23 +27,19 @@
 
           <div class="teacher-comment">
             <h3 class="section-title">Комментарии преподавателя:</h3>
-            <textarea 
-              v-model="teacherComment"
-              class="comment-textarea" 
-              placeholder="Введите комментарии для студентов..."
-            ></textarea>
+            <textarea v-model="teacherComment"
+                      class="comment-textarea"
+                      placeholder="Введите комментарии для студентов..."></textarea>
           </div>
 
           <div class="link-section">
             <h3 class="section-title">Ссылка для связи:</h3>
             <div class="link-container">
               <i class="fa-solid fa-link link-icon"></i>
-              <input 
-                v-model="communicationLink"
-                type="text" 
-                class="link-input" 
-                placeholder="Вставьте ссылку на чат"
-              >
+              <input v-model="communicationLink"
+                     type="text"
+                     class="link-input"
+                     placeholder="Вставьте ссылку на чат">
               <button class="go-button" @click="openLink">Перейти</button>
             </div>
           </div>
@@ -57,18 +51,14 @@
             </div>
 
             <div class="editing-buttons">
-              <button 
-                class="edit-button" 
-                :disabled="isEditing"
-                @click="startEditing"
-              >
+              <button class="edit-button"
+                      :disabled="isEditing"
+                      @click="startEditing">
                 <i class="fa-solid fa-pen"></i>
                 Редактировать
               </button>
-              <button 
-                class="save-button"
-                @click="saveGrades"
-              >
+              <button class="save-button"
+                      @click="saveGrades">
                 <i class="fa-solid fa-bookmark"></i>
                 Сохранить ведомость
               </button>
@@ -77,22 +67,9 @@
         </div>
       </div>
     </div>
-    
-    <div v-if="isAddingAssignment" class="modal-backdrop">
-      <div class="modal">
-        <h3>Добавить новое задание</h3>
-        <input 
-          v-model="newAssignmentName"
-          type="text" 
-          placeholder="Название задания"
-          class="modal-input"
-        >
-        <div class="modal-buttons">
-          <button @click="isAddingAssignment = false">Отмена</button>
-          <button @click="confirmAddAssignment">Добавить</button>
-        </div>
-      </div>
-    </div>
+    <AddNewExampleModal v-if="isAddingAssignment"
+                        @close="isAddingAssignment = false"
+                        @confirm="handleAssignmentConfirm" />
   </div>
 </template>
 
@@ -101,6 +78,7 @@ import { defineComponent } from 'vue';
 import SideBar from '../components/SideBar.vue';
 import TopBar from '../components/TopBar.vue';
 import GradesTable from '../components/GradesTable.vue';
+import AddNewExampleModal from '../components/AddNewExampleModal.vue';
 import { api } from '../boot/axios';
 
 interface StudentGrade {
@@ -115,6 +93,7 @@ export default defineComponent({
     SideBar,
     TopBar,
     GradesTable,
+    AddNewExampleModal
   },
   data() {
     return {
@@ -168,6 +147,10 @@ export default defineComponent({
     startEditing() {
       this.isEditing = true;
     },
+
+    handleAssignmentConfirm(name: string) {
+      this.assignments.push(name);
+    },
     
     handleGradeUpdate({ studentId, assignment, value }: { studentId: number; assignment: string; value: string }) {
       if (!this.pendingUpdates[assignment]) {
@@ -201,14 +184,8 @@ export default defineComponent({
     addAssignment() {
       this.isAddingAssignment = true;
     },
-    
-    confirmAddAssignment() {
-      if (this.newAssignmentName.trim()) {
-        this.assignments.push(this.newAssignmentName.trim());
-        this.isAddingAssignment = false;
-        this.newAssignmentName = '';
-      }
-    },
+
+
     
     openLink() {
       if (this.communicationLink) {

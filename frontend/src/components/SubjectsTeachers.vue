@@ -95,6 +95,7 @@ import AddSubjectModal from './AddSubjectModal.vue'
 import EditSubjectModal from './EditSubjectModal.vue'
 const EditIcon = new URL('../assets/icons/edit.png', import.meta.url).href
 const DeleteIcon = new URL('../assets/icons/delete.png', import.meta.url).href
+const FEFUIcon = new URL('../assets/icons/fefu.png', import.meta.url).href
 
 interface Subject {
   id: number

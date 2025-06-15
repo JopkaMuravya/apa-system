@@ -100,6 +100,7 @@ const DeleteIcon = new URL('../assets/icons/delete.png', import.meta.url).href
 const EditIcon = new URL('../assets/icons/edit.png', import.meta.url).href
 const AcceptIcon = new URL('../assets/icons/accept.png', import.meta.url).href
 const CancelIcon = new URL('../assets/icons/cancel.png', import.meta.url).href
+const FEFUIcon = new URL('../assets/icons/fefu.png', import.meta.url).href
 import type { AxiosError } from 'axios'
 
 interface User {
