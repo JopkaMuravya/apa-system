@@ -173,14 +173,20 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .subjects-info {
+  .subjects-container {
+    justify-content: center;
     width: 100%;
-    max-width: 240px;
+  }
+
+  .subjects-info {
+    width: 90%;
+    max-width: none;
     height: 140px;
+    margin: 0 auto 15px;
   }
 
   .subject {
-    font-size: 15px;
+    font-size: 20px;
   }
 }
 </style>
