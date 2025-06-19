@@ -40,6 +40,9 @@
       </div>
 
       <div class="mobile-search-wrapper" v-else>
+        <button class="mobile-search-button" @click="search">
+          <img :src="SearchIcon" alt="Найти" width="16">
+        </button>
         <input type="text"
                class="mobile-search-input"
                v-model="searchQuery"
@@ -258,6 +261,7 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   min-width: 45%;
+  user-select: none;
 }
 
 .user-group {
@@ -336,6 +340,7 @@ export default defineComponent({
   overflow: hidden;
   text-overflow: ellipsis;
   width: 85%;
+  user-select: none;
 }
 
 .mobile-user-group {
@@ -378,6 +383,7 @@ export default defineComponent({
   color: #1b263b;
   font-size: 14px;
   background: #ffffff;
+  margin-left: 10px;
 }
 
 .mobile-search-close {

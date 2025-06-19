@@ -122,11 +122,13 @@ export default defineComponent({
 .group-panel {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  height: 100%;
   background: #ffffff;
   font-family: 'Arial', sans-serif;
-  padding: 20px;
-  height: 100vh;
-  overflow-y: auto;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .group-container {
@@ -134,26 +136,52 @@ export default defineComponent({
   flex-wrap: wrap;
   gap: 15px;
   align-items: flex-start;
+  align-content: flex-start;
+  margin-left: 80px;
+  width: calc(100% - 80px);
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.group-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.group-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.group-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .group-card {
-  width: 300px;
-  height: 150px;
-  background: rgba(0, 103, 177, 0.05);
+  background: rgba(0, 103, 177, 0.1);
   border-radius: 10px;
-  border: 2px solid #6995D0;
+  width: 300px;
+  height: 120px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+  border: 2px solid #6995D0;
   transition: all 0.3s ease;
+  box-shadow: 0 20px 20px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  transform: scale(1);
   cursor: pointer;
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
 .group-card:hover {
   transform: scale(1.03);
-  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 25px 25px rgba(0, 0, 0, 0.15);
 }
 
 .group-icon {
@@ -163,27 +191,31 @@ export default defineComponent({
 }
 
 .group-name {
-  font-size: 18px;
   color: #6995D0;
-  text-align: center;
+  font-size: 18px;
+  margin: 5px 20px;
+  text-decoration: underline;
   word-break: break-word;
 }
 
-  .add-button {
-    height: 40px;
-    background: #ffffff;
-    margin: 55px 5px;
-    border-radius: 5px;
-    padding: 5px;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border: 2px solid #6995D0;
-    transition: all 0.3s ease;
-  }
+.add-button {
+  height: 40px;
+  background: #ffffff;
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+  text-align: center;
+  margin: 40px 5px;
+  border: 2px solid #6995D0;
+  transform: scale(1);
+  transition: all 0.3s ease;
+}
 
 .add-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  transform: scale(1.03);
+  box-shadow: 0 25px 25px rgba(0, 0, 0, 0.15);
 }
 
 .add-button img {

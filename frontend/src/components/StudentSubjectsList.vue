@@ -131,8 +131,8 @@ export default {
   overflow-y: auto;
   padding: 20px;
   box-sizing: border-box;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
 
   &::-webkit-scrollbar {
     width: 8px;
