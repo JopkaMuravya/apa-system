@@ -119,12 +119,13 @@ export default {
 .Teacher-main {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: #ffffff;
   font-family: 'Arial', sans-serif;
   position: relative;
-  padding: 20px;
-  overflow-y: auto;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .subjects-container {
@@ -132,6 +133,31 @@ export default {
   flex-wrap: wrap;
   gap: 15px;
   align-items: flex-start;
+  align-content: flex-start;
+  
+  margin-left: 80px;
+  width: calc(100% - 80px);
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+
+  
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
 }
 
 .subjects-info {
@@ -174,6 +200,7 @@ export default {
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
   transform: scale(1);
+  cursor: pointer;
 }
 
 .groups-info:hover {
@@ -235,14 +262,21 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .subjects-info, .groups-info {
+  .subjects-container {
+    margin-left: 0px;
+    justify-content: center;
     width: 100%;
-    max-width: 240px;
+  }
+
+  .subjects-info, .groups-info {
+    width: 90%;
+    max-width: none;
     height: 140px;
+    margin: 0 auto 15px;
   }
 
   .subject {
-    font-size: 15px;
+    font-size: 20px;
   }
 }
 </style>

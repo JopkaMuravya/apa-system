@@ -1,0 +1,8 @@
+{
+  "appId": "com.apa.system",
+  "appName": "apa-system",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "http"
+  }
+}
