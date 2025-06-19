@@ -2,7 +2,7 @@
   <aside class="group-panel">
     <div class="group-container">
       <button
-        v-for="group in groups"
+        v-for="group in filteredGroups"
         :key="group.id"
         class="group-card"
         @click="openGroup(group)"
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
 
@@ -46,8 +46,14 @@ interface Group {
 
 export default defineComponent({
   name: 'GroupList',
+  props: {
+    searchQuery: {
+      type: String,
+      default: ''
+    }
+  },
   components: { CreateGroupModal },
-  setup() {
+  setup(props) {
     const router = useRouter()
     const groups = ref<Group[]>([])
     const currentAddIcon = ref(AddIcon)
@@ -84,6 +90,17 @@ export default defineComponent({
       currentAddIcon.value = AddIcon
     }
 
+    const filteredGroups = computed(() => {
+      let filtered = groups.value
+
+      if (props.searchQuery) {
+        const query = props.searchQuery.toLowerCase()
+        filtered = filtered.filter(group => group.name.toLowerCase().includes(query))
+      }
+
+      return filtered
+    })
+
     onMounted(fetchGroups)
 
     return {
@@ -94,7 +111,8 @@ export default defineComponent({
       openGroup,
       showCreateModal,
       handleGroupCreated,
-      SubjectIcon
+      SubjectIcon,
+      filteredGroups
     }
   }
 })

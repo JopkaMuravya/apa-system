@@ -112,7 +112,13 @@ interface User {
 
 export default defineComponent({
   name: 'UsersList',
-  setup() {
+  props: {
+    searchQuery: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const users = ref<User[]>([])
     const selectedRole = ref('')
     const loading = ref(false)
@@ -146,11 +152,23 @@ export default defineComponent({
       }
     }
 
-    const filteredUsers = computed(() =>
-      selectedRole.value
-        ? users.value.filter(user => user.role === selectedRole.value)
-        : users.value
-    )
+    const filteredUsers = computed(() => {
+      let filtered = users.value
+
+      if (selectedRole.value) {
+        filtered = filtered.filter(user => user.role === selectedRole.value)
+      }
+
+      if (props.searchQuery) {
+        const query = props.searchQuery.toLowerCase()
+        filtered = filtered.filter(user =>
+          user.full_name.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query)
+        )
+      }
+
+      return filtered
+    })
 
     const getRoleLabel = (role: string | null) => {
       switch (role) {
@@ -311,7 +329,11 @@ th {
 td {
   padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
+}
+
+tr {
+  border: 1px solid #e0e0e0;
 }
 
 tr:hover {
@@ -323,6 +345,7 @@ td.action-buttons {
   width: 90px;
   text-align: center;
   white-space: nowrap;
+  border: none;
 }
 
 .action-buttons {
@@ -341,7 +364,6 @@ td.action-buttons {
   height: 30px;
   padding: 4px;
   cursor: pointer;
-  transition: transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -3,7 +3,7 @@
     <SideBar />
     <div class="content">
       <div class="topbar-wrapper">
-        <TopBar />
+        <TopBar @search="search" />
       </div>
 
       <div class="inner-content">
@@ -29,9 +29,18 @@
         </div>
 
         <div class="tab-content">
-          <UsersList v-if="currentTab === 'users'" />
-          <GroupsList v-else-if="currentTab === 'groups'" />
-          <SubjectsTeachers v-else />
+          <UsersList
+            v-if="currentTab === 'users'"
+            :search-query="searchQuery"
+          />
+          <GroupsList
+            v-else-if="currentTab === 'groups'"
+            :search-query="searchQuery"
+          />
+          <SubjectsTeachers
+            v-else
+            :search-query="searchQuery"
+          />
         </div>
       </div>
     </div>
@@ -46,6 +55,7 @@ import UsersList from '../components/UsersList.vue'
 import GroupsList from '../components/GroupsList.vue'
 import SubjectsTeachers from '../components/SubjectsTeachers.vue'
 import { usePageStore } from '../stores/page';
+import { useRoute } from 'vue-router'
 
 export default defineComponent({
   name: 'ModeratorHomePage',
@@ -58,13 +68,30 @@ export default defineComponent({
   },
   setup() {
     const currentTab = ref<'users' | 'groups' | 'subjects'>('users')
+    const searchQuery = ref('')
     const pageStore = usePageStore();
+
+    const search = (query: string) => {
+      searchQuery.value = query
+    }
 
     onMounted(() => {
       pageStore.setIsTeacher(false);
-    });
-    return { currentTab }
-  }
+    })
+
+    return {
+      currentTab,
+      searchQuery,
+      search
+    }
+  },
+  created() {
+    const route = useRoute();
+    if (route.query.search) {
+      this.searchQuery = route.query.search as string;
+      this.search(this.searchQuery);
+    }
+  },
 })
 </script>
 

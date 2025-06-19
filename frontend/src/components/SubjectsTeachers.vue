@@ -13,7 +13,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="subject in sortedSubjects" :key="subject.id">
+            <tr v-for="subject in filteredSubjects" :key="subject.id">
               <td>{{ subject.name }}</td>
               <td>
                 <ul class="teacher-list">
@@ -106,7 +106,13 @@ interface Subject {
 export default defineComponent({
   name: 'SubjectsTeachers',
   components: { AddSubjectModal, EditSubjectModal },
-  setup() {
+  props: {
+    searchQuery: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const subjects = ref<Subject[]>([])
     const loading = ref(true)
     const error = ref('')
@@ -133,9 +139,20 @@ export default defineComponent({
       }
     }
 
-    const sortedSubjects = computed(() =>
-      [...subjects.value].sort((a, b) => a.name.localeCompare(b.name))
-    )
+    const filteredSubjects = computed(() => {
+      let filtered = subjects.value
+
+      if (props.searchQuery) {
+        const query = props.searchQuery.toLowerCase()
+
+        filtered = filtered.filter(subject =>
+          subject.name.toLowerCase().includes(query) ||
+          subject.teachers.some(teacher =>
+            teacher.full_name.toLowerCase().includes(query)))
+      }
+
+      return [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    })
 
     const openDeleteModal = (subject: Subject) => {
       subjectToDelete.value = subject
@@ -172,7 +189,7 @@ export default defineComponent({
     }
 
     const getTeacherIds = (subject: Subject): number[] => {
-      const teacherMap = new Map(subjects.value.flatMap(s => 
+      const teacherMap = new Map(subjects.value.flatMap(s =>
         s.teachers.map((t, i) => [t, i + 1])
       ))
       return subject.teachers.map(name => teacherMap.get(name)).filter(Boolean) as number[]
@@ -182,7 +199,7 @@ export default defineComponent({
 
     return {
       subjects,
-      sortedSubjects,
+      filteredSubjects,
       loading,
       error,
       showAddModal,
@@ -218,12 +235,28 @@ export default defineComponent({
   margin-top: 10px;
 }
 
-.subject-table th,
-.subject-table td {
-  padding: 10px;
-  border: 1px solid #ccc;
+th {
+  background: #6995D0;
+  color: white;
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: bold;
+  position: relative;
+}
+
+td {
+  padding: 12px 15px;
   text-align: left;
   vertical-align: top;
+  border: 1px solid #e0e0e0;
+}
+
+tr {
+  border: 1px solid #e0e0e0;
+}
+
+tr:hover {
+  background-color: rgba(105, 149, 208, 0.1);
 }
 
 th.action-header,
@@ -231,6 +264,7 @@ td.action-buttons {
   width: 90px;
   text-align: center;
   white-space: nowrap;
+  border: none;
 }
 
 .action-buttons {
@@ -272,7 +306,8 @@ img {
 
 .teacher-list {
   margin: 0;
-  padding-left: 16px;
+  padding-left: 0;
+  list-style-type: none;
 }
 
 .add-subject-button {

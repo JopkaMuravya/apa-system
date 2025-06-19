@@ -2,7 +2,7 @@
   <div class="main-page">
     <SideBar />
     <div class="content">
-      <TopBar />
+      <TopBar @search="search" />
       <div class="task-list-wrapper">
         <SubjectsList :searchQuery="searchQuery" />
       </div>
@@ -15,6 +15,7 @@
   import SideBar from '../components/SideBar.vue';
   import TopBar from '../components/TopBar.vue';
   import SubjectsList from '../components/SubjectsList.vue';
+  import { useRoute } from 'vue-router';
 
   export default defineComponent({
     name: 'MainPage',
@@ -25,9 +26,16 @@
     },
     data() {
       return {
-        searchQuery: '',
-        currentPageTitle: 'Главная'
+        currentPageTitle: 'Главная',
+        searchQuery: ''
       };
+    },
+    created() {
+      const route = useRoute();
+      if (route.query.search) {
+        this.searchQuery = route.query.search as string;
+        this.search(this.searchQuery);
+      }
     },
     provide() {
       return {
@@ -36,7 +44,12 @@
         },
         currentPageTitle: this.currentPageTitle
       };
-    }
+    },
+    methods: {
+      search(query: string) {
+        this.searchQuery = query;
+      }
+    },
   });
 </script>
 

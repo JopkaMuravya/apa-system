@@ -12,11 +12,13 @@
             </div>
           </div>
 
-          <GradesTable :assignments="assignments"
-                       :grades="grades"
-                       :is-editing="isEditing"
-                       @update-grade="handleGradeUpdate"
-                       @add-assignment="addAssignment" />
+          <GradesTable
+            :assignments="assignments"
+            :grades="grades"
+            :is-editing="isEditing"
+            @update-grade="handleGradeUpdate"
+            @add-assignment="addAssignment"
+          />
 
           <div class="add-column-container">
             <button
@@ -31,9 +33,9 @@
 
           <div class="teacher-comment">
             <h3 class="section-title">Комментарии преподавателя:</h3>
-            <textarea 
+            <textarea
               v-model="teacherComment"
-              class="comment-textarea" 
+              class="comment-textarea"
               placeholder="Введите комментарии для студентов..."
               :disabled="!isEditing"
             ></textarea>
@@ -42,14 +44,16 @@
           <div class="link-section">
             <h3 class="section-title">Ссылка для связи:</h3>
             <div class="link-container">
-              <i class="fa-solid fa-link link-icon"></i>
-              <input 
-                v-model="communicationLink"
-                type="text" 
-                class="link-input" 
-                placeholder="Вставьте ссылку на чат"
-                :disabled="!isEditing"
-              >
+              <div class="link-input-icon">
+                <i class="fa-solid fa-link link-icon"></i>
+                <input
+                  v-model="communicationLink"
+                  type="text"
+                  class="link-input"
+                  placeholder="Вставьте ссылку на чат"
+                  :disabled="!isEditing"
+                >
+              </div>
               <button class="go-button" @click="openLink">Перейти</button>
             </div>
           </div>
@@ -69,7 +73,7 @@
                 <i class="fa-solid" :class="isEditing ? 'fa-xmark' : 'fa-pen'"></i>
                 {{ isEditing ? 'Отменить' : 'Редактировать' }}
               </button>
-              <button 
+              <button
                 class="save-button"
                 :disabled="!hasChanges || !isEditing"
                 @click="saveGrades"
@@ -133,12 +137,12 @@ export default defineComponent({
   },
   async created() {
     await this.fetchTeacherName();
-    
+
     this.groupId = parseInt(this.$route.query.groupId as string);
     this.groupName = this.$route.query.groupName as string;
     this.subjectId = parseInt(this.$route.query.subjectId as string);
     this.subjectName = this.$route.query.subjectName as string;
-    
+
     await this.loadGrades();
   },
   methods: {
@@ -162,7 +166,7 @@ export default defineComponent({
         console.error('Ошибка загрузки оценок:', error);
       }
     },
-    
+
     startEditing() {
       this.backupGrades = JSON.parse(JSON.stringify(this.grades));
       this.backupAssignments = [...this.assignments];
@@ -198,7 +202,7 @@ export default defineComponent({
       }
       this.pendingUpdates[assignment][studentId] = value;
     },
-    
+
     async saveGrades() {
       if (!this.hasChanges) return;
 
@@ -209,12 +213,12 @@ export default defineComponent({
             grades
           });
         }
-        
+
         await api.put(`/api/grades/${this.groupId}/${this.subjectId}/`, {
           comment: this.teacherComment,
           link: this.communicationLink
         });
-        
+
         this.isEditing = false;
         this.pendingUpdates = {};
         await this.loadGrades();
@@ -222,11 +226,11 @@ export default defineComponent({
         console.error('Ошибка сохранения:', error);
       }
     },
-    
+
     addAssignment() {
       this.isAddingAssignment = true;
     },
-    
+
     confirmAddAssignment() {
       if (!this.isEditing) return;
       
@@ -236,7 +240,7 @@ export default defineComponent({
         this.newAssignmentName = '';
       }
     },
-    
+
     openLink() {
       if (this.communicationLink) {
         window.open(this.communicationLink, '_blank');
