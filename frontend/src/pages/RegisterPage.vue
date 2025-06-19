@@ -75,6 +75,12 @@
         </div>
       </div>
     </div>
+
+    <ErrorModal
+      :isOpen="showErrorModal"
+      :message="errorMessage"
+      @close="showErrorModal = false"
+    />
   </div>
 </template>
 
@@ -82,10 +88,15 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import ErrorModal from '../components/ErrorModal.vue'
 
 const unauthApi = axios.create({ baseURL: 'http://localhost:8000' })
 
 export default {
+  components: {
+    ErrorModal
+  },
+
   setup() {
     const router = useRouter()
 
@@ -98,7 +109,28 @@ export default {
       confirmPassword: ''
     })
 
+    const showErrorModal = ref(false)
+    const errorMessage = ref('')
+
+    const showError = (message) => {
+      errorMessage.value = message
+      showErrorModal.value = true
+    }
+
     const onSubmit = async () => {
+      const allowedDomain = 'dvfu.ru';
+      const emailDomain = form.value.email.split('@')[1];
+
+      if (emailDomain !== allowedDomain) {
+        showError(`Разрешена регистрация только с email домена @${allowedDomain}`);
+        return;
+      }
+
+      if (form.value.password !== form.value.confirmPassword) {
+        showError('Пароли не совпадают!');
+        return;
+      }
+
       try {
         const response = await unauthApi.post('/api/register/', {
           email: form.value.email,
@@ -113,7 +145,7 @@ export default {
 
         router.push('/')
       } catch (error) {
-        alert('Ошибка регистрации: ' + (error.response?.data?.detail || error.message))
+        showError('Ошибка регистрации: ' + (error.response?.data?.detail || error.message))
       }
     }
 
@@ -132,6 +164,8 @@ export default {
       form,
       onSubmit,
       goToLogin,
+      showErrorModal,
+      errorMessage,
       togglePassword
     }
   }
