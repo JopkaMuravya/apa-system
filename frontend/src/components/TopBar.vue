@@ -119,25 +119,32 @@ export default defineComponent({
     }
 
     const search = () => {
-      let homePath = ''
-      switch (role.value) {
-        case 'student':
-          homePath = '/student'
-          break
-        case 'teacher':
-          homePath = '/teacher'
-          break
-        case 'moderator':
-          homePath = '/moderator'
-          break
-      }
-      if (route.path !== homePath) {
-        router.push({
-          path: homePath,
-          query: { search: searchQuery.value }
-        })
+      const currentPath = route.path;
+      const isGradesPage = currentPath.includes('-grades');
+
+      if (isGradesPage) {
+        emit('search', searchQuery.value);
       } else {
-        emit('search', searchQuery.value)
+        let homePath = ''
+        switch (role.value) {
+          case 'student':
+            homePath = '/student'
+            break
+          case 'teacher':
+            homePath = '/teacher'
+            break
+          case 'moderator':
+            homePath = '/moderator'
+            break
+        }
+        if (route.path !== homePath) {
+          router.push({
+            path: homePath,
+            query: { search: searchQuery.value }
+          })
+        } else {
+          emit('search', searchQuery.value)
+        }
       }
     }
 

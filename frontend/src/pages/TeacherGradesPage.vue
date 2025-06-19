@@ -2,7 +2,7 @@
   <div class="main-page">
     <SideBar />
     <div class="content">
-      <TopBar />
+      <TopBar @search="search" />
       <div class="grades-panel-wrapper">
         <div class="grades-container">
           <div class="grades-header">
@@ -16,6 +16,7 @@
             :assignments="assignments"
             :grades="grades"
             :is-editing="isEditing"
+            :searchQuery="searchQuery"
             @update-grade="handleGradeUpdate"
             @add-assignment="addAssignment"
           />
@@ -65,8 +66,8 @@
             </div>
 
             <div class="editing-buttons">
-              <button 
-                class="edit-button" 
+              <button
+                class="edit-button"
                 :class="{ 'cancel-button': isEditing }"
                 @click="toggleEditing"
               >
@@ -99,6 +100,7 @@ import TopBar from '../components/TopBar.vue';
 import GradesTable from '../components/GradesTable.vue';
 import AddNewExampleModal from '../components/AddNewExampleModal.vue';
 import { api } from '../boot/axios';
+import { useRoute } from 'vue-router';
 
 interface StudentGrade {
   student: number;
@@ -132,8 +134,13 @@ export default defineComponent({
       backupGrades: [] as StudentGrade[],
       backupAssignments: [] as string[],
       backupComment: '',
-      backupLink: ''
+      backupLink: '',
+      searchQuery: ''
     };
+  },
+  setup() {
+    const route = useRoute();
+    return { route };
   },
   async created() {
     await this.fetchTeacherName();
@@ -142,6 +149,11 @@ export default defineComponent({
     this.groupName = this.$route.query.groupName as string;
     this.subjectId = parseInt(this.$route.query.subjectId as string);
     this.subjectName = this.$route.query.subjectName as string;
+
+    if (this.route.query.search) {
+      this.searchQuery = this.route.query.search as string;
+      this.search(this.searchQuery);
+    }
 
     await this.loadGrades();
   },
@@ -191,11 +203,11 @@ export default defineComponent({
         this.startEditing();
       }
     },
-    
+
     handleAssignmentConfirm(name: string) {
       this.assignments.push(name);
     },
-    
+
     handleGradeUpdate({ studentId, assignment, value }: { studentId: number; assignment: string; value: string }) {
       if (!this.pendingUpdates[assignment]) {
         this.pendingUpdates[assignment] = {};
@@ -233,7 +245,7 @@ export default defineComponent({
 
     confirmAddAssignment() {
       if (!this.isEditing) return;
-      
+
       if (this.newAssignmentName.trim()) {
         this.assignments.push(this.newAssignmentName.trim());
         this.isAddingAssignment = false;
@@ -245,7 +257,11 @@ export default defineComponent({
       if (this.communicationLink) {
         window.open(this.communicationLink, '_blank');
       }
-    }
+    },
+
+    search(query: string) {
+      this.searchQuery = query;
+    },
   },
 
   computed: {

@@ -2,7 +2,7 @@
   <div class="main-page">
     <SideBar />
     <div class="content">
-      <TopBar />
+      <TopBar @search="search" />
       <div class="grades-panel-wrapper">
         <div class="grades-container">
           <div class="grades-header">
@@ -16,6 +16,7 @@
             :assignments="assignments"
             :grades="grades"
             :is-editing="false"
+            :searchQuery="searchQuery"
           />
 
           <!-- Убрана кнопка добавления колонки -->
@@ -91,6 +92,7 @@ import SideBar from '../components/SideBar.vue';
 import TopBar from '../components/TopBar.vue';
 import { api } from '../boot/axios';
 import GradesList from '../components/GradesList.vue';
+import { useRoute } from 'vue-router';
 
 interface StudentGrade {
   student: number;
@@ -122,7 +124,12 @@ export default defineComponent({
           newAssignmentName: '',
           pendingUpdates: {} as Record<string, Record<string, string>>,
           userRole: '',
+          searchQuery: ''
         };
+      },
+      setup() {
+        const route = useRoute();
+        return { route };
       },
     async created() {
       await this.fetchTeacherName();
@@ -132,6 +139,11 @@ export default defineComponent({
       this.groupName = this.$route.query.groupName as string;
       this.subjectId = parseInt(this.$route.query.subjectId as string);
       this.subjectName = this.$route.query.subjectName as string;
+
+      if (this.route.query.search) {
+        this.searchQuery = this.route.query.search as string;
+        this.search(this.searchQuery);
+      }
 
       await this.loadGrades();
     },
@@ -188,7 +200,11 @@ export default defineComponent({
       if (this.communicationLink) {
         window.open(this.communicationLink, '_blank');
       }
-    }
+    },
+
+    search(query: string) {
+      this.searchQuery = query;
+    },
   },
 });
 </script>

@@ -11,13 +11,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(student, index) in localGrades" :key="student.student">
+        <tr v-for="(student, index) in filteredStudents" :key="student.student">
           <td>{{ index + 1 }}</td>
           <td>{{ student.full_name }}</td>
-          <td 
-            v-for="assignment in assignments" 
+          <td
+            v-for="assignment in assignments"
             :key="`${student.student}-${assignment}`"
-            class="editable-grade" 
+            class="editable-grade"
             :contenteditable="isEditing"
             @blur="onGradeChange(student.student, assignment, $event)"
           >
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch, ref } from 'vue';
+import { defineComponent, watch, ref, computed } from 'vue';
 
 interface StudentGrade {
   student: number;
@@ -52,19 +52,34 @@ export default defineComponent({
     isEditing: {
       type: Boolean,
       default: false
+    },
+    searchQuery: {
+      type: String,
+      default: ''
     }
   },
   emits: ['update-grade'],
 
   setup(props) {
     const localGrades = ref<StudentGrade[]>([]);
-    
+
     watch(() => props.grades, (newGrades) => {
       localGrades.value = JSON.parse(JSON.stringify(newGrades));
     }, { immediate: true });
-    
+
+    const filteredStudents = computed(() => {
+      if (!props.searchQuery) return localGrades.value;
+
+      const query = props.searchQuery.toLowerCase();
+
+      return localGrades.value.filter(student =>
+        student.full_name.toLowerCase().includes(query)
+      );
+    });
+
     return {
-      localGrades
+      localGrades,
+      filteredStudents
     };
   },
 
@@ -78,10 +93,10 @@ export default defineComponent({
         student[assignment] = value;
       }
 
-      this.$emit('update-grade', { 
-        studentId, 
-        assignment, 
-        value 
+      this.$emit('update-grade', {
+        studentId,
+        assignment,
+        value
       });
     }
   }
