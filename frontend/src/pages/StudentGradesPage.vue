@@ -193,6 +193,14 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 @import "../css/grades.scss";
+
+.link-input {
+  cursor: default;
+}
+
+.comment-textarea {
+  cursor: default;
+}
 </style>

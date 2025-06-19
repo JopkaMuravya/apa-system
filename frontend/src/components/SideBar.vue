@@ -217,6 +217,7 @@ export default defineComponent({
   overflow: hidden;
   text-overflow: ellipsis;
   width: 70vh;
+  user-select: none;
 }
 
 .fefu-icon {
@@ -267,6 +268,7 @@ export default defineComponent({
     flex-grow: 1; 
     text-align: center; 
     padding: 0 10px; 
+    user-select: none;
   }
 
   .mobile-exit-button {

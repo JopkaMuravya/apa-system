@@ -261,6 +261,7 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   min-width: 45%;
+  user-select: none;
 }
 
 .user-group {
@@ -339,6 +340,7 @@ export default defineComponent({
   overflow: hidden;
   text-overflow: ellipsis;
   width: 85%;
+  user-select: none;
 }
 
 .mobile-user-group {

@@ -188,6 +188,7 @@ export default {
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
   transform: scale(1);
+  cursor: pointer;
 }
 
 .groups-info:hover {
