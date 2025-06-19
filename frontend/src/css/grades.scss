@@ -281,6 +281,7 @@
 @media (max-width: 480px) {
   .content {
     padding: 8px 5px;
+    padding-bottom: 70px
   }
 
   .grades-container {
@@ -327,6 +328,7 @@
     width: 100%;
     justify-content: flex-end;
     flex-direction: column;
+    align-items: center;
   }
 
   .edit-button, .save-button {
