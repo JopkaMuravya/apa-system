@@ -12,13 +12,11 @@
             </div>
           </div>
 
-          <GradesTable 
-            :assignments="assignments"
-            :grades="grades"
-            :is-editing="isEditing"
-            @update-grade="handleGradeUpdate"
-            @add-assignment="addAssignment"
-          />
+          <GradesTable :assignments="assignments"
+                       :grades="grades"
+                       :is-editing="isEditing"
+                       @update-grade="handleGradeUpdate"
+                       @add-assignment="addAssignment" />
 
           <div class="add-column-container">
             <button
@@ -84,22 +82,9 @@
         </div>
       </div>
     </div>
-    
-    <div v-if="isAddingAssignment" class="modal-backdrop">
-      <div class="modal">
-        <h3>Добавить новое задание</h3>
-        <input 
-          v-model="newAssignmentName"
-          type="text" 
-          placeholder="Название задания"
-          class="modal-input"
-        >
-        <div class="modal-buttons">
-          <button @click="isAddingAssignment = false">Отмена</button>
-          <button @click="confirmAddAssignment">Добавить</button>
-        </div>
-      </div>
-    </div>
+    <AddNewExampleModal v-if="isAddingAssignment"
+                        @close="isAddingAssignment = false"
+                        @confirm="handleAssignmentConfirm" />
   </div>
 </template>
 
@@ -108,6 +93,7 @@ import { defineComponent } from 'vue';
 import SideBar from '../components/SideBar.vue';
 import TopBar from '../components/TopBar.vue';
 import GradesTable from '../components/GradesTable.vue';
+import AddNewExampleModal from '../components/AddNewExampleModal.vue';
 import { api } from '../boot/axios';
 
 interface StudentGrade {
@@ -122,6 +108,7 @@ export default defineComponent({
     SideBar,
     TopBar,
     GradesTable,
+    AddNewExampleModal
   },
   data() {
     return {
@@ -199,6 +186,10 @@ export default defineComponent({
       } else {
         this.startEditing();
       }
+    },
+    
+    handleAssignmentConfirm(name: string) {
+      this.assignments.push(name);
     },
     
     handleGradeUpdate({ studentId, assignment, value }: { studentId: number; assignment: string; value: string }) {

@@ -151,16 +151,17 @@ export default defineComponent({
   word-break: break-word;
 }
 
-.add-button {
-  height: 40px;
-  background: #ffffff;
-  border-radius: 5px;
-  padding: 5px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  border: 2px solid #6995D0;
-  transition: all 0.3s ease;
-}
+  .add-button {
+    height: 40px;
+    background: #ffffff;
+    margin: 55px 5px;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 2px solid #6995D0;
+    transition: all 0.3s ease;
+  }
 
 .add-button:hover {
   transform: scale(1.05);

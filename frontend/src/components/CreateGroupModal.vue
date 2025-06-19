@@ -16,9 +16,15 @@
 
     <div v-if="showErrorModal" class="modal-backdrop inner">
       <div class="error-modal">
-        <h2>Ошибка</h2>
-        <p>{{ errorMessage }}</p>
-        <button @click="showErrorModal = false">Закрыть</button>
+        <div class="error-modal-blue">
+          <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+          <h2>Ошибка</h2>
+          <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+        </div>
+        <div class="error-modal-text">
+          <p>{{ errorMessage }}</p>
+          <button @click="showErrorModal = false">Закрыть</button>
+        </div>
       </div>
     </div>
   </div>
@@ -28,6 +34,7 @@
 import { defineComponent, ref } from 'vue'
 import { api } from 'boot/axios'
 import type { AxiosError } from 'axios'
+const FEFUIcon = new URL('../assets/icons/fefu.png', import.meta.url).href
 
 export default defineComponent({
   name: 'CreateGroupModal',
@@ -80,7 +87,8 @@ export default defineComponent({
       groupName,
       showErrorModal,
       errorMessage,
-      createGroup
+      createGroup,
+      FEFUIcon
     }
   }
 })
@@ -155,22 +163,64 @@ h2 {
   background-color: #bbb;
 }
 
-.error-modal {
-  background: white;
-  padding: 25px 30px;
-  border-radius: 10px;
-  text-align: center;
-  min-width: 280px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
+  .error-modal {
+    background: white;
+    padding: 0;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 280px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
 
-.error-modal h2 {
-  margin-bottom: 10px;
-  font-size: 20px;
-}
+  .error-modal-blue {
+    background: #6995D0;
+    border-radius: 10px 10px 0 0;
+    min-width: 100px;
+    min-height: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
 
-.error-modal p {
-  font-size: 14px;
-  margin-bottom: 15px;
-}
+  .error-modal-text {
+    padding: 25px 30px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    min-height: 80px;
+  }
+
+  .error-modal-blue img {
+    width: auto;
+    height: 35px;
+    margin-bottom: 5px;
+  }
+
+  .error-modal h2 {
+    margin: 0;
+    font-size: 22px;
+    color: white;
+  }
+
+  .error-modal p {
+    margin: 0 0 15px;
+    font-size: 15px;
+    color: #333;
+  }
+
+  .error-modal button {
+    background-color: #6995d0;
+    color: white;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+    .error-modal button:hover {
+      background-color: #527cbf;
+    }
 </style>

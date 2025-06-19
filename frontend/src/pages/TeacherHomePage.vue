@@ -56,6 +56,13 @@
     flex-direction: column;
     overflow: hidden;
     z-index: 1;
+    padding-bottom: 70px;
+  }
+
+  @media (min-width: 769px) {
+    .content {
+      padding-bottom: 0;
+    }
   }
 
   .task-list-wrapper {
@@ -65,16 +72,16 @@
     scrollbar-width: thin;
   }
 
-  .task-list-wrapper::-webkit-scrollbar {
-    width: 8px;
-  }
+    .task-list-wrapper::-webkit-scrollbar {
+      width: 8px;
+    }
 
-  .task-list-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 4px;
-  }
+    .task-list-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 4px;
+    }
 
-  .task-list-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.8);
-  }
+      .task-list-wrapper::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.8);
+      }
 </style>  

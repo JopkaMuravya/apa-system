@@ -55,6 +55,13 @@ export default defineComponent({
   flex-direction: column;
   overflow: hidden;
   z-index: 1;
+  padding-bottom: 70px;
+}
+
+@media (min-width: 769px) {
+  .content {
+    padding-bottom: 0; /* Для десктопной версии */
+  }
 }
 
 .task-list-wrapper {

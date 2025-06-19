@@ -39,12 +39,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import SideBar from '../components/SideBar.vue'
 import TopBar from '../components/TopBar.vue'
 import UsersList from '../components/UsersList.vue'
 import GroupsList from '../components/GroupsList.vue'
 import SubjectsTeachers from '../components/SubjectsTeachers.vue'
+import { usePageStore } from '../stores/page';
 
 export default defineComponent({
   name: 'ModeratorHomePage',
@@ -57,6 +58,11 @@ export default defineComponent({
   },
   setup() {
     const currentTab = ref<'users' | 'groups' | 'subjects'>('users')
+    const pageStore = usePageStore();
+
+    onMounted(() => {
+      pageStore.setIsTeacher(false);
+    });
     return { currentTab }
   }
 })

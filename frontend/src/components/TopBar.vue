@@ -1,34 +1,61 @@
 <template>
   <div class="top-menu">
-    <div class="search-wrapper">
-      <img class="search-icon" :src="SearchIcon" alt="Поиск" />
-      <input
-        type="text"
-        class="search-input"
-        v-model="searchQuery"
-        placeholder="Поиск..."
-      />
+    <!-- Десктопная версия -->
+    <div class="desktop-top-bar" v-if="!isMobile">
+      <div class="search-wrapper">
+        <img class="search-icon" :src="SearchIcon" alt="Поиск" />
+        <input type="text"
+               class="search-input"
+               v-model="searchQuery"
+               placeholder="Поиск..." />
+      </div>
+      <div class="user">
+        {{ fullName }}
+        <span v-if="group && role === 'student'" class="user-group">({{ group.name }})</span>
+      </div>
+      <button class="support-button" @click="openSupport">
+        <img :src="SupportIcon" alt="Поддержка" />
+      </button>
+      <button class="exit-button"
+              @click="login"
+              @mouseover="hoverExit"
+              @mouseleave="unhoverExit">
+        <img :src="currentExitIcon" alt="Выйти" />
+      </button>
     </div>
-    <div class="user">
-      {{ fullName }}
-      <span v-if="group && role === 'student'" class="user-group">({{ group.name }})</span>
+
+    <!-- Мобильная версия -->
+    <div class="mobile-top-bar" v-if="isMobile">
+      <div class="mobile-user-info" v-if="!isSearchExpanded">
+        <div class="mobile-user-name">
+          {{ fullName }}
+          <span v-if="group && role === 'student'" class="mobile-user-group">({{ group.name }})</span>
+        </div>
+        <button class="mobile-search-button" @click="expandSearch">
+          <img class="mobile-search-icon" :src="SearchIcon" alt="Поиск" />
+        </button>
+      </div>
+
+      <div class="mobile-search-wrapper" v-else>
+        <input type="text"
+               class="mobile-search-input"
+               v-model="searchQuery"
+               placeholder="Поиск..."
+               ref="searchInput" />
+        <button class="mobile-search-close" @click="collapseSearch">
+          ×
+        </button>
+      </div>
     </div>
-    <button
-      class="exit-button"
-      @click="login"
-      @mouseover="hoverExit"
-      @mouseleave="unhoverExit"
-    >
-      <img :src="currentExitIcon" alt="Выйти" />
-    </button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, nextTick } from 'vue'
 const ExitIcon = new URL('../assets/icons/exit_blue.png', import.meta.url).href
 const ExitIcon2 = new URL('../assets/icons/exit_red.png', import.meta.url).href
 const SearchIcon = new URL('../assets/icons/search.png', import.meta.url).href
+const SupportIcon = new URL('../assets/icons/help.png', import.meta.url).href;
 import { api } from '../boot/axios'
 import { useRouter } from 'vue-router'
 
@@ -46,6 +73,15 @@ export default defineComponent({
     const fullName = ref('')
     const group = ref<Group | null>(null)
     const role = ref('')
+    const isMobile = ref(false)
+    const isSearchExpanded = ref(false)
+    const searchInput = ref<HTMLInputElement | null>(null)
+
+
+    const checkMobile = () => {
+      isMobile.value = window.innerWidth <= 768
+    }
+
 
     const fetchCurrentUser = async () => {
       try {
@@ -67,7 +103,20 @@ export default defineComponent({
       }
     }
 
+    const expandSearch = async () => {
+      isSearchExpanded.value = true
+      await nextTick()
+      searchInput.value?.focus()
+    }
+
+    const collapseSearch = () => {
+      isSearchExpanded.value = false
+      searchQuery.value = ''
+    }
+
     onMounted(() => {
+      checkMobile()
+      window.addEventListener('resize', checkMobile)
       fetchCurrentUser()
     })
 
@@ -85,16 +134,39 @@ export default defineComponent({
       currentExitIcon.value = ExitIcon
     }
 
+    const openSupport = () => {
+      const email = 'NEgovnoedka@yandex.ru'; // Ваш email
+      const subject = encodeURIComponent('Поддержка ДВФУ');
+      const body = encodeURIComponent(
+        'Здравствуйте!\n\nМне нужна помощь по следующему вопросу:\n\n' +
+        '----------------------------------\n' +
+        'Дополнительная информация:\n' +
+        '• Страница: ' + window.location.href + '\n' +
+        '• Время: ' + new Date().toLocaleString() + '\n' +
+        '• Браузер: ' + navigator.userAgent + '\n' +
+        '• ОС: ' + navigator.platform
+      );
+
+      window.open('https://mail.yandex.ru/?uid=1130000065432#compose?to=' + email + '&subject=' + subject + '&body=' + body, '_blank');
+    };
+
     return {
+      SupportIcon,
+      openSupport,
       searchQuery,
       currentExitIcon,
       SearchIcon,
       fullName,
       group,
       role,
+      isMobile,
+      isSearchExpanded,
+      searchInput,
       login,
       hoverExit,
-      unhoverExit
+      unhoverExit,
+      expandSearch,
+      collapseSearch
     }
   }
 })
@@ -102,6 +174,10 @@ export default defineComponent({
 
 <style scoped>
   .top-menu {
+    width: 100%;
+  }
+
+  .desktop-top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -140,7 +216,7 @@ export default defineComponent({
     transform: translateY(-50%);
     width: 20px;
     height: 20px;
-    pointer-events: none; 
+    pointer-events: none;
   }
 
   .user {
@@ -165,10 +241,10 @@ export default defineComponent({
     border: none;
     border-radius: 5px;
     padding: 10px;
-    cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    min-width: 2%;
+    cursor: pointer;
+    margin-left: 10px;
   }
 
     .exit-button:hover {
@@ -179,4 +255,116 @@ export default defineComponent({
       width: 24px;
       height: 24px;
     }
+
+
+  .support-button {
+    height: 40px;
+    background: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-width: 2%;
+  }
+
+    .support-button img {
+      width: 24px;
+      height: 24px;
+      transition: transform 0.3s ease;
+    }
+
+    .support-button:hover img {
+      transform: scale(1.1);
+    }
+
+
+  .mobile-top-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background: #6995D0;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: -10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    height: 80px;
+  }
+
+  .mobile-user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .mobile-user-name {
+    color: white;
+    font-size: 25px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 85%;
+  }
+
+  .mobile-user-group {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .mobile-search-button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 10px;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .mobile-search-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mobile-search-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+  }
+
+  .mobile-search-input {
+    width: 100%;
+    height: 36px;
+    padding: 8px 35px 8px 15px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: #1b263b;
+    font-size: 14px;
+    background: #ffffff;
+  }
+
+  .mobile-search-close {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    padding: 0 5px;
+  }
+
+  @media (min-width: 769px) {
+    .mobile-top-bar {
+      display: none;
+    }
+  }
 </style>
