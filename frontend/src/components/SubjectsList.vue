@@ -7,7 +7,7 @@
       </button>
     </div>
     <div v-else class="subjects-container">
-      <button v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info" @click="goToTeacherGrades(group)">
+      <button v-for="group in filteredGroups" :key="group.id" class="groups-info" @click="goToTeacherGrades(group)">
         <p class="subject">{{ group.name }}</p>
       </button>
     </div>
@@ -71,6 +71,7 @@ export default {
     async showGroups(subject) {
       this.loading = true;
       this.error = null;
+      this.$emit('groups-loaded');
       try {
         const response = await api.get(`/api/teacher/subjects/${subject.id}/groups/`);
         this.pageStore.setSubject(subject, response.data);
@@ -110,7 +111,20 @@ export default {
       }
 
       return filtered
-    }
+    },
+    filteredGroups() {
+      if (!this.pageStore.currentGroups) return [];
+
+      let filtered = this.pageStore.currentGroups
+
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase()
+
+        filtered = filtered.filter(group => group.name.toLowerCase().includes(query))
+      }
+
+      return filtered
+    },
   },
 };
 </script>

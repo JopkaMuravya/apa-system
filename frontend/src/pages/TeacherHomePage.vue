@@ -4,7 +4,9 @@
     <div class="content">
       <TopBar @search="search" />
       <div class="task-list-wrapper">
-        <SubjectsList :searchQuery="searchQuery" />
+        <SubjectsList
+          :searchQuery="searchQuery"
+          @groups-loaded="resetSearchQuery" />
       </div>
     </div>
   </div>
@@ -48,6 +50,9 @@
     methods: {
       search(query: string) {
         this.searchQuery = query;
+      },
+      resetSearchQuery() {
+        this.searchQuery = '';
       }
     },
   });
@@ -97,4 +102,4 @@
       .task-list-wrapper::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.8);
       }
-</style>  
+</style>
