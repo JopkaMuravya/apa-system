@@ -7,7 +7,7 @@
       </button>
     </div>
     <div v-else class="subjects-container">
-      <button v-for="group in filteredGroups" :key="group.id" class="groups-info" @click="goToTeacherGrades(group)">
+      <button v-for="group in pageStore.currentGroups" :key="group.id" class="groups-info" @click="goToTeacherGrades(group)">
         <p class="subject">{{ group.name }}</p>
       </button>
     </div>
@@ -71,7 +71,6 @@ export default {
     async showGroups(subject) {
       this.loading = true;
       this.error = null;
-      this.$emit('groups-loaded');
       try {
         const response = await api.get(`/api/teacher/subjects/${subject.id}/groups/`);
         this.pageStore.setSubject(subject, response.data);
@@ -111,20 +110,7 @@ export default {
       }
 
       return filtered
-    },
-    filteredGroups() {
-      if (!this.pageStore.currentGroups) return [];
-
-      let filtered = this.pageStore.currentGroups
-
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase()
-
-        filtered = filtered.filter(group => group.name.toLowerCase().includes(query))
-      }
-
-      return filtered
-    },
+    }
   },
 };
 </script>
@@ -133,12 +119,13 @@ export default {
 .Teacher-main {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: #ffffff;
   font-family: 'Arial', sans-serif;
   position: relative;
-  padding: 20px;
-  overflow-y: auto;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .subjects-container {
@@ -146,6 +133,31 @@ export default {
   flex-wrap: wrap;
   gap: 15px;
   align-items: flex-start;
+  align-content: flex-start;
+  
+  margin-left: 80px;
+  width: calc(100% - 80px);
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+
+  
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
 }
 
 .subjects-info {
@@ -251,6 +263,7 @@ export default {
 
 @media (max-width: 480px) {
   .subjects-container {
+    margin-left: 0px;
     justify-content: center;
     width: 100%;
   }
