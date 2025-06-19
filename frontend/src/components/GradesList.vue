@@ -9,7 +9,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(assignment, index) in assignments" :key="index">
+          <tr v-for="(assignment, index) in filteredAssignments" :key="index">
             <td>{{ index + 1 }}</td>
             <td>{{ assignment }}</td>
             <td>{{ grades[0][assignment] }}</td>
@@ -42,6 +42,10 @@ export default defineComponent({
     isEditing: {
       type: Boolean,
       default: false
+    },
+    searchQuery: {
+      type: String,
+      default: ''
     }
   },
   emits: ['update-grade'],
@@ -54,7 +58,20 @@ export default defineComponent({
         value
       });
     }
-  }
+  },
+  computed: {
+    filteredAssignments() {
+      let filtered = this.assignments
+
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase()
+
+        filtered = filtered.filter(assignment => assignment.toLowerCase().includes(query))
+      }
+
+      return filtered
+    }
+  },
 });
 
 </script>
