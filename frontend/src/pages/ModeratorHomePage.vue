@@ -3,7 +3,7 @@
     <SideBar />
     <div class="content">
       <div class="topbar-wrapper">
-        <TopBar />
+        <TopBar @search="search" />
       </div>
 
       <div class="inner-content">
@@ -12,7 +12,7 @@
             :class="{ active: currentTab === 'users' }"
             @click="currentTab = 'users'"
           >
-            Пользователи
+            Все пользователи
           </button>
           <button
             :class="{ active: currentTab === 'groups' }"
@@ -20,11 +20,27 @@
           >
             Учебные группы
           </button>
+          <button
+            :class="{ active: currentTab === 'subjects' }"
+            @click="currentTab = 'subjects'"
+          >
+            Предметы и преподаватели
+          </button>
         </div>
 
         <div class="tab-content">
-          <UsersList v-if="currentTab === 'users'" />
-          <GroupsList v-else />
+          <UsersList
+            v-if="currentTab === 'users'"
+            :search-query="searchQuery"
+          />
+          <GroupsList
+            v-else-if="currentTab === 'groups'"
+            :search-query="searchQuery"
+          />
+          <SubjectsTeachers
+            v-else
+            :search-query="searchQuery"
+          />
         </div>
       </div>
     </div>
@@ -32,11 +48,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import SideBar from '../components/SideBar.vue'
 import TopBar from '../components/TopBar.vue'
 import UsersList from '../components/UsersList.vue'
 import GroupsList from '../components/GroupsList.vue'
+import SubjectsTeachers from '../components/SubjectsTeachers.vue'
+import { usePageStore } from '../stores/page';
+import { useRoute } from 'vue-router'
 
 export default defineComponent({
   name: 'ModeratorHomePage',
@@ -44,12 +63,35 @@ export default defineComponent({
     SideBar,
     TopBar,
     UsersList,
-    GroupsList
+    GroupsList,
+    SubjectsTeachers
   },
   setup() {
-    const currentTab = ref<'users' | 'groups'>('users')
-    return { currentTab }
-  }
+    const currentTab = ref<'users' | 'groups' | 'subjects'>('users')
+    const searchQuery = ref('')
+    const pageStore = usePageStore();
+
+    const search = (query: string) => {
+      searchQuery.value = query
+    }
+
+    onMounted(() => {
+      pageStore.setIsTeacher(false);
+    })
+
+    return {
+      currentTab,
+      searchQuery,
+      search
+    }
+  },
+  created() {
+    const route = useRoute();
+    if (route.query.search) {
+      this.searchQuery = route.query.search as string;
+      this.search(this.searchQuery);
+    }
+  },
 })
 </script>
 

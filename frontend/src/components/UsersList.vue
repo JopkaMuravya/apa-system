@@ -13,7 +13,6 @@
                 <option value="waiting">Без роли</option>
                 <option value="student">Студент</option>
                 <option value="teacher">Преподаватель</option>
-                <option value="moderator">Модератор</option>
               </select>
             </div>
           </th>
@@ -30,7 +29,6 @@
                 <option value="waiting">Без роли</option>
                 <option value="student">Студент</option>
                 <option value="teacher">Преподаватель</option>
-                <option value="moderator">Модератор</option>
               </select>
             </td>
             <td class="action-buttons">
@@ -64,19 +62,31 @@
 
     <div v-if="showErrorModal" class="modal-backdrop">
       <div class="error-modal">
-        <h2>Ошибка</h2>
-        <p>{{ modalErrorMessage }}</p>
-        <button @click="showErrorModal = false">Закрыть</button>
+        <div class="error-modal-blue">
+          <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+          <h2>Ошибка</h2>
+          <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+        </div>
+        <div class="error-modal-text">
+          <p>{{ modalErrorMessage }}</p>
+          <button @click="showErrorModal = false">Закрыть</button>
+        </div>
       </div>
     </div>
 
     <div v-if="showDeleteModal" class="modal-backdrop">
       <div class="error-modal">
-        <h2>Подтверждение</h2>
-        <p>Удалить пользователя {{ userToDelete?.full_name }}?</p>
-        <div style="display: flex; justify-content: center; gap: 10px;">
-          <button @click="confirmDeleteUser">Да</button>
-          <button @click="cancelDeleteUser">Нет</button>
+        <div class="error-modal-blue">
+          <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+          <h2>Подтверждение</h2>
+          <img class="fefu-icon" :src="FEFUIcon" alt="Fefu" />
+        </div>
+        <div class="error-modal-text">
+          <p>Удалить пользователя {{ userToDelete?.full_name }}?</p>
+          <div style="display: flex; justify-content: center; gap: 10px;">
+            <button @click="confirmDeleteUser">Да</button>
+            <button @click="cancelDeleteUser">Нет</button>
+          </div>
         </div>
       </div>
     </div>
@@ -86,10 +96,11 @@
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import { api } from 'boot/axios'
-import DeleteIcon from '../assets/icons/delete.png'
-import EditIcon from '../assets/icons/edit.png'
-import AcceptIcon from '../assets/icons/accept.png'
-import CancelIcon from '../assets/icons/cancel.png'
+const DeleteIcon = new URL('../assets/icons/delete.png', import.meta.url).href
+const EditIcon = new URL('../assets/icons/edit.png', import.meta.url).href
+const AcceptIcon = new URL('../assets/icons/accept.png', import.meta.url).href
+const CancelIcon = new URL('../assets/icons/cancel.png', import.meta.url).href
+const FEFUIcon = new URL('../assets/icons/fefu.png', import.meta.url).href
 import type { AxiosError } from 'axios'
 
 interface User {
@@ -101,7 +112,13 @@ interface User {
 
 export default defineComponent({
   name: 'UsersList',
-  setup() {
+  props: {
+    searchQuery: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const users = ref<User[]>([])
     const selectedRole = ref('')
     const loading = ref(false)
@@ -135,11 +152,23 @@ export default defineComponent({
       }
     }
 
-    const filteredUsers = computed(() =>
-      selectedRole.value
-        ? users.value.filter(user => user.role === selectedRole.value)
-        : users.value
-    )
+    const filteredUsers = computed(() => {
+      let filtered = users.value
+
+      if (selectedRole.value) {
+        filtered = filtered.filter(user => user.role === selectedRole.value)
+      }
+
+      if (props.searchQuery) {
+        const query = props.searchQuery.toLowerCase()
+        filtered = filtered.filter(user =>
+          user.full_name.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query)
+        )
+      }
+
+      return filtered
+    })
 
     const getRoleLabel = (role: string | null) => {
       switch (role) {
@@ -245,6 +274,7 @@ export default defineComponent({
       EditIcon,
       AcceptIcon,
       CancelIcon,
+      FEFUIcon,
       editingUserId,
       editForm,
       getRoleLabel,
@@ -277,6 +307,8 @@ export default defineComponent({
 .role-filter {
   font-size: 14px;
   padding: 4px 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 table {
@@ -285,11 +317,27 @@ table {
   margin-top: 10px;
 }
 
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
+th {
+  background: #6995D0;
+  color: white;
+  padding: 12px 15px;
   text-align: left;
-  vertical-align: middle;
+  font-weight: bold;
+  position: relative;
+}
+
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border: 1px solid #e0e0e0;
+}
+
+tr {
+  border: 1px solid #e0e0e0;
+}
+
+tr:hover {
+  background-color: rgba(105, 149, 208, 0.1);
 }
 
 th.action-header,
@@ -297,6 +345,7 @@ td.action-buttons {
   width: 90px;
   text-align: center;
   white-space: nowrap;
+  border: none;
 }
 
 .action-buttons {
@@ -315,7 +364,6 @@ td.action-buttons {
   height: 30px;
   padding: 4px;
   cursor: pointer;
-  transition: transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -360,8 +408,10 @@ img {
 
 input, select {
   width: 100%;
-  padding: 5px;
+  padding: 8px;
   font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .loader {
@@ -386,19 +436,46 @@ input, select {
   align-items: center;
 }
 
-.error-modal {
-  background: white;
-  padding: 25px 30px;
-  border-radius: 10px;
-  text-align: center;
-  min-width: 280px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
+  .error-modal {
+    background: white;
+    padding: 0;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 280px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
 
-.error-modal h2 {
-  margin: 0 0 10px;
-  font-size: 24px;
-}
+  .error-modal-blue {
+    background: #6995D0;
+    border-radius: 10px 10px 0 0;
+    min-width: 100px;
+    min-height: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .error-modal-text {
+    padding: 25px 30px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    min-height: 80px;
+  }
+
+  .error-modal-blue img {
+    width: auto;
+    height: 35px;
+    margin-bottom: 5px;
+  }
+
+  .error-modal h2 {
+    margin: 0;
+    font-size: 22px;
+    color: white;
+  }
 
 .error-modal p {
   margin: 0 0 15px;

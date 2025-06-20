@@ -2,7 +2,7 @@
   <aside class="group-panel">
     <div class="group-container">
       <button
-        v-for="group in groups"
+        v-for="group in filteredGroups"
         :key="group.id"
         class="group-card"
         @click="openGroup(group)"
@@ -13,30 +13,51 @@
 
       <button
         class="add-button"
-        @click="createGroup"
+        @click="showCreateModal = true"
         @mouseover="hoverAdd"
         @mouseleave="unhoverAdd"
       >
         <img :src="currentAddIcon" alt="Добавить группу" />
       </button>
     </div>
+
+    <CreateGroupModal
+      v-if="showCreateModal"
+      @close="showCreateModal = false"
+      @group-created="handleGroupCreated"
+    />
   </aside>
 </template>
 
-<script>
-import SubjectIcon from '../assets/icons/programs.png';
-import AddIcon from '../assets/icons/add_blue.png';
-import AddIcon2 from '../assets/icons/add_red.png';
-import { ref, onMounted } from 'vue'
+<script lang="ts">
+import { defineComponent, ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
 
-export default {
+const SubjectIcon = new URL('../assets/icons/programs.png', import.meta.url).href
+const AddIcon = new URL('../assets/icons/add_blue.png', import.meta.url).href
+const AddIcon2 = new URL('../assets/icons/add_red.png', import.meta.url).href
+import CreateGroupModal from './CreateGroupModal.vue'
+
+interface Group {
+  id: number
+  name: string
+}
+
+export default defineComponent({
   name: 'GroupList',
-  setup() {
+  props: {
+    searchQuery: {
+      type: String,
+      default: ''
+    }
+  },
+  components: { CreateGroupModal },
+  setup(props) {
     const router = useRouter()
-    const groups = ref([])
+    const groups = ref<Group[]>([])
     const currentAddIcon = ref(AddIcon)
+    const showCreateModal = ref(false)
 
     const fetchGroups = async () => {
       try {
@@ -47,18 +68,7 @@ export default {
       }
     }
 
-    const createGroup = async () => {
-      const name = prompt('Введите название новой группы:')
-      if (!name) return
-      try {
-        await api.post('/api/groups/', { name })
-        fetchGroups()
-      } catch (err) {
-        alert('Ошибка при создании группы')
-      }
-    }
-
-    const openGroup = (group) => {
+    const openGroup = (group: Group) => {
       router.push({
         name: 'group-detail',
         params: {
@@ -66,6 +76,10 @@ export default {
           name: encodeURIComponent(group.name)
         }
       })
+    }
+
+    const handleGroupCreated = () => {
+      fetchGroups()
     }
 
     const hoverAdd = () => {
@@ -76,6 +90,17 @@ export default {
       currentAddIcon.value = AddIcon
     }
 
+    const filteredGroups = computed(() => {
+      let filtered = groups.value
+
+      if (props.searchQuery) {
+        const query = props.searchQuery.toLowerCase()
+        filtered = filtered.filter(group => group.name.toLowerCase().includes(query))
+      }
+
+      return filtered
+    })
+
     onMounted(fetchGroups)
 
     return {
@@ -83,12 +108,14 @@ export default {
       currentAddIcon,
       hoverAdd,
       unhoverAdd,
-      createGroup,
       openGroup,
-      SubjectIcon
+      showCreateModal,
+      handleGroupCreated,
+      SubjectIcon,
+      filteredGroups
     }
   }
-}
+})
 </script>
 
 <style scoped>
@@ -142,16 +169,17 @@ export default {
   word-break: break-word;
 }
 
-.add-button {
-  height: 40px;
-  background: #ffffff;
-  border-radius: 5px;
-  padding: 5px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  border: 2px solid #6995D0;
-  transition: all 0.3s ease;
-}
+  .add-button {
+    height: 40px;
+    background: #ffffff;
+    margin: 55px 5px;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 2px solid #6995D0;
+    transition: all 0.3s ease;
+  }
 
 .add-button:hover {
   transform: scale(1.05);

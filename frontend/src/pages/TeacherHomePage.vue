@@ -2,9 +2,11 @@
   <div class="main-page">
     <SideBar />
     <div class="content">
-      <TopBar />
+      <TopBar @search="search" />
       <div class="task-list-wrapper">
-        <SubjectsList :searchQuery="searchQuery" />
+        <SubjectsList
+          :searchQuery="searchQuery"
+          @groups-loaded="resetSearchQuery" />
       </div>
     </div>
   </div>
@@ -15,6 +17,7 @@
   import SideBar from '../components/SideBar.vue';
   import TopBar from '../components/TopBar.vue';
   import SubjectsList from '../components/SubjectsList.vue';
+  import { useRoute } from 'vue-router';
 
   export default defineComponent({
     name: 'MainPage',
@@ -25,9 +28,16 @@
     },
     data() {
       return {
-        searchQuery: '',
-        currentPageTitle: 'Главная'
+        currentPageTitle: 'Главная',
+        searchQuery: ''
       };
+    },
+    created() {
+      const route = useRoute();
+      if (route.query.search) {
+        this.searchQuery = route.query.search as string;
+        this.search(this.searchQuery);
+      }
     },
     provide() {
       return {
@@ -36,7 +46,15 @@
         },
         currentPageTitle: this.currentPageTitle
       };
-    }
+    },
+    methods: {
+      search(query: string) {
+        this.searchQuery = query;
+      },
+      resetSearchQuery() {
+        this.searchQuery = '';
+      }
+    },
   });
 </script>
 
@@ -56,6 +74,13 @@
     flex-direction: column;
     overflow: hidden;
     z-index: 1;
+    padding-bottom: 70px;
+  }
+
+  @media (min-width: 769px) {
+    .content {
+      padding-bottom: 0;
+    }
   }
 
   .task-list-wrapper {
@@ -65,16 +90,16 @@
     scrollbar-width: thin;
   }
 
-  .task-list-wrapper::-webkit-scrollbar {
-    width: 8px;
-  }
+    .task-list-wrapper::-webkit-scrollbar {
+      width: 8px;
+    }
 
-  .task-list-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 4px;
-  }
+    .task-list-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 4px;
+    }
 
-  .task-list-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.8);
-  }
-</style>  
+      .task-list-wrapper::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.8);
+      }
+</style>
